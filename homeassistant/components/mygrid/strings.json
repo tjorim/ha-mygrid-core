@@ -1,21 +1,53 @@
 {
   "title": "MyGrid",
   "config": {
+    "flow_title": "{name}",
     "step": {
       "user": {
-        "title": "Connect to MyGrid",
+        "title": "Add a MyGrid device",
+        "description": "Which device do you want to add?",
+        "menu_options": {
+          "moduletwo": "ModuleTwo battery (Modbus TCP)",
+          "voltbridge": "VoltBridge P1 meter"
+        }
+      },
+      "moduletwo": {
+        "title": "Connect to MyGrid ModuleTwo",
         "description": "Enable the Home Assistant control source in the MyGrid app first. Connect to the Auto leader for a cluster. The battery accepts one Modbus client at a time.",
         "data": {
           "host": "Host",
           "port": "Port"
         }
       },
-      "reconfigure": {
-        "title": "Reconfigure MyGrid",
+      "reconfigure_moduletwo": {
+        "title": "Reconfigure MyGrid ModuleTwo",
         "description": "Enable the Home Assistant control source in the MyGrid app first. Connect to the Auto leader for a cluster. The battery accepts one Modbus client at a time.",
         "data": {
           "host": "Host",
           "port": "Port"
+        }
+      },
+      "voltbridge": {
+        "title": "Connect to MyGrid VoltBridge",
+        "description": "Enter the address of the VoltBridge P1 meter. It must have received at least one P1 telegram.",
+        "data": {
+          "host": "Host"
+        },
+        "data_description": {
+          "host": "IP address or hostname of the VoltBridge, for example 192.168.0.45 or voltbridge-D02D80.local."
+        }
+      },
+      "discovery_confirm": {
+        "title": "MyGrid VoltBridge found",
+        "description": "Set up the VoltBridge at {host}?"
+      },
+      "reconfigure_voltbridge": {
+        "title": "Reconfigure MyGrid VoltBridge",
+        "data": {
+          "host": "Host"
+        },
+        "data_description": {
+          "host": "IP address or hostname of the VoltBridge, for example 192.168.0.45 or voltbridge-D02D80.local."
         }
       }
     },
@@ -23,11 +55,17 @@
       "cannot_connect": "Cannot read the battery. Check the address, Home Assistant control source, cluster leader, and whether another client is connected.",
       "unsupported_map": "This battery uses an unsupported Modbus register map. Only map version 2 is supported.",
       "cannot_unload": "Could not unload the current connection. Try again after other integration tasks finish.",
-      "link_settings_in_use": "The battery connection is already in use with incompatible Modbus settings."
+      "link_settings_in_use": "The battery connection is already in use with incompatible Modbus settings.",
+      "voltbridge_cannot_connect": "Cannot reach the VoltBridge. Check the address and that it is on the same network.",
+      "voltbridge_no_data": "The VoltBridge is reachable but has not received a P1 telegram yet. Check the P1 cable and try again."
     },
     "abort": {
-      "already_configured": "This endpoint is already configured.",
-      "reconfigure_successful": "Connection settings updated."
+      "already_configured": "This device is already configured.",
+      "reconfigure_successful": "Connection settings updated.",
+      "not_voltbridge": "The discovered device is not a VoltBridge.",
+      "wrong_device": "That address belongs to a different meter.",
+      "voltbridge_cannot_connect": "Cannot reach the discovered VoltBridge.",
+      "voltbridge_no_data": "The discovered VoltBridge has not received a P1 telegram yet."
     }
   },
   "options": {
@@ -37,8 +75,47 @@
         "data": {
           "poll_interval": "Polling interval (seconds)"
         },
-        "description": "Read the battery every 2\u2013300 seconds. The default is 5 seconds."
+        "description": "Read the battery every 2–300 seconds. The default is 5 seconds."
+      },
+      "voltbridge_init": {
+        "title": "Polling",
+        "description": "Live power arrives by UDP push about once a second. The HTTP snapshot, which carries gas, is refreshed at this interval; it is also the fallback if UDP broadcasts do not reach Home Assistant.",
+        "data": {
+          "poll_interval": "Polling interval (seconds)"
+        },
+        "data_description": {
+          "poll_interval": "How often the full HTTP snapshot is read. Live power arrives by UDP push regardless."
+        }
       }
+    }
+  },
+  "exceptions": {
+    "communication_error": {
+      "message": "Cannot read the battery. Check its connection and control source."
+    },
+    "unsupported_map": {
+      "message": "Unsupported battery register map. Only version 2 is supported."
+    },
+    "invalid_setpoint": {
+      "message": "Power must be a multiple of 100 W within the current battery limits."
+    },
+    "command_failed": {
+      "message": "The battery command could not be confirmed. It may have been applied. Read the battery state before sending another command."
+    },
+    "link_settings_in_use": {
+      "message": "The battery connection is already in use with incompatible Modbus settings."
+    },
+    "voltbridge_communication_error": {
+      "message": "Cannot read the VoltBridge."
+    },
+    "voltbridge_no_data": {
+      "message": "The VoltBridge has not received a P1 telegram yet."
+    }
+  },
+  "issues": {
+    "no_p1_data": {
+      "title": "VoltBridge receives no P1 data",
+      "description": "The VoltBridge is reachable but has stopped receiving P1 telegrams from the meter. Check that the P1 cable is plugged into the meter's P1 port and that the meter's P1 port is enabled. This issue clears itself when data returns."
     }
   },
   "entity": {
@@ -86,6 +163,75 @@
       },
       "fault_flags": {
         "name": "Fault flags"
+      },
+      "net_power": {
+        "name": "Net power"
+      },
+      "import_power": {
+        "name": "Import power"
+      },
+      "export_power": {
+        "name": "Export power"
+      },
+      "energy_import_t1": {
+        "name": "Energy imported (day)"
+      },
+      "energy_import_t2": {
+        "name": "Energy imported (night)"
+      },
+      "energy_export_t1": {
+        "name": "Energy exported (day)"
+      },
+      "energy_export_t2": {
+        "name": "Energy exported (night)"
+      },
+      "avg_demand": {
+        "name": "Current average demand"
+      },
+      "peak_demand": {
+        "name": "Peak demand"
+      },
+      "peak_demand_at": {
+        "name": "Peak demand time"
+      },
+      "tariff": {
+        "name": "Tariff",
+        "state": {
+          "day": "Day",
+          "night": "Night"
+        }
+      },
+      "gas": {
+        "name": "Gas"
+      },
+      "phase_voltage": {
+        "name": "Voltage {phase}"
+      },
+      "phase_current": {
+        "name": "Current {phase}"
+      },
+      "phase_import_power": {
+        "name": "Import power {phase}"
+      },
+      "phase_export_power": {
+        "name": "Export power {phase}"
+      },
+      "water": {
+        "name": "Water"
+      },
+      "breaker": {
+        "name": "Breaker",
+        "state": {
+          "open": "Open",
+          "closed": "Closed",
+          "ready_to_reconnect": "Ready to reconnect"
+        }
+      },
+      "limiter_threshold": {
+        "name": "Limiter threshold"
+      },
+      "fuse_threshold": {
+        "name": "Fuse threshold"
       }
     },
     "binary_sensor": {
@@ -168,23 +314,6 @@
       "restart": {
         "name": "Restart"
       }
-    }
-  },
-  "exceptions": {
-    "communication_error": {
-      "message": "Cannot read the battery. Check its connection and control source."
-    },
-    "unsupported_map": {
-      "message": "Unsupported battery register map. Only version 2 is supported."
-    },
-    "invalid_setpoint": {
-      "message": "Power must be a multiple of 100 W within the current battery limits."
-    },
-    "command_failed": {
-      "message": "The battery command could not be confirmed. It may have been applied. Read the battery state before sending another command."
-    },
-    "link_settings_in_use": {
-      "message": "The battery connection is already in use with incompatible Modbus settings."
     }
   }
 }

@@ -17,7 +17,14 @@ def main() -> None:
     ]
     assert manifest["domain"] == "mygrid"
     assert manifest["dependencies"] == ["modbus"]
-    assert manifest["requirements"] == ["mygrid-modbus==0.1.0"]
+    assert manifest["requirements"] == [
+        "mygrid-modbus==0.1.0",
+        "mygrid-voltbridge==0.3.0",
+    ]
+    assert manifest["dhcp"] == [{"registered_devices": True}]
+    assert manifest["zeroconf"] == [
+        {"type": "_mygrid._tcp.local.", "properties": {"model": "voltbridge*"}}
+    ]
     assert "version" not in manifest and "issue_tracker" not in manifest
     assert (
         manifest["documentation"] == "https://www.home-assistant.io/integrations/mygrid"
@@ -38,7 +45,7 @@ def main() -> None:
                     )
                 ), path
     print(
-        "Core metadata, independent library requirement, and namespace boundaries validated."
+        "Core metadata, independent library requirements, and namespace boundaries validated."
     )
 
 

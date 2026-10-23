@@ -8,14 +8,29 @@
   "dependencies": [
     "modbus"
   ],
+  "dhcp": [
+    {
+      "registered_devices": true
+    }
+  ],
   "documentation": "https://www.home-assistant.io/integrations/mygrid",
   "integration_type": "device",
   "iot_class": "local_polling",
   "loggers": [
     "modbus_connection",
+    "mygrid_voltbridge",
     "tmodbus"
   ],
   "requirements": [
-    "mygrid-modbus==0.1.0"
+    "mygrid-modbus==0.1.0",
+    "mygrid-voltbridge==0.3.0"
+  ],
+  "zeroconf": [
+    {
+      "type": "_mygrid._tcp.local.",
+      "properties": {
+        "model": "voltbridge*"
+      }
+    }
   ]
 }

@@ -4,15 +4,17 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
-from .coordinator import MyGridCoordinator
+from .moduletwo_coordinator import ModuleTwoCoordinator
 
 
-class MyGridEntity(CoordinatorEntity[MyGridCoordinator]):
+class ModuleTwoEntity(CoordinatorEntity[ModuleTwoCoordinator]):
     """A named entity whose identity survives address reconfiguration."""
 
     _attr_has_entity_name = True
 
-    def __init__(self, coordinator: MyGridCoordinator, identity: str, key: str) -> None:
+    def __init__(
+        self, coordinator: ModuleTwoCoordinator, identity: str, key: str
+    ) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{identity}_{key}"
         self._attr_device_info = DeviceInfo(

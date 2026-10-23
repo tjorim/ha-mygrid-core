@@ -1,11 +1,12 @@
 # Engineering checklist, not an official HA rating. Comments identify evidence.
+# One integration covers two device families: ModuleTwo (Modbus TCP) and VoltBridge (HTTP + UDP).
 rules:
   action-setup:
     status: exempt
     comment: Uses standard number and button actions; registers no custom services.
   appropriate-polling:
     status: done
-    comment: One map read every five seconds; configurable 2–300 seconds. tests/test_integration.py.
+    comment: One map read every five seconds; configurable 2–300 seconds. tests/test_integration.py. VoltBridge - live values by UDP push; the HTTP snapshot and telegram are polled every 30 s (5-600 s configurable) because the device is a small microcontroller. tests/test_voltbridge_integration.py.
   brands:
     status: todo
     comment: Add approved manufacturer artwork and submit to HA brands when publishing; no artwork rights were supplied.
@@ -14,13 +15,13 @@ rules:
     comment: Device/Component library owns register metadata and timing; common integration modules own HA lifecycle.
   config-flow:
     status: done
-    comment: UI host/port setup with an actual map probe. tests/test_config_flow.py.
+    comment: UI host/port setup with an actual map probe. tests/test_config_flow.py. VoltBridge - menu choice, host probe and serial identity.
   config-flow-test-coverage:
     status: done
-    comment: tests/test_config_flow.py covers success, duplicate, failure, options and reconfiguration paths.
+    comment: tests/test_config_flow.py covers success, duplicate, failure, options and reconfiguration paths. tests/test_voltbridge_config_flow.py and tests/test_umbrella.py cover the VoltBridge and menu paths.
   dependency-transparency:
     status: done
-    comment: Developer README and draft user documentation and manifest disclose mygrid-modbus==0.1.0, the shared modbus-connection transport and publication prerequisite.
+    comment: Developer README and draft user documentation and manifest disclose mygrid-modbus==0.1.0, the shared modbus-connection transport and publication prerequisite. mygrid-voltbridge==0.3.0 is likewise disclosed; both libraries have public source and CI but are not yet on PyPI
   docs-actions:
     status: done
     comment: Developer README and draft user documentation explains number.set_value and button.press, confirmation and uncertainty.
@@ -44,22 +45,22 @@ rules:
     comment: CoordinatorEntity manages subscriptions; entities register no additional event listeners.
   entity-unique-id:
     status: done
-    comment: Entry ID plus semantic entity key; reconfiguration preserves history. tests/test_config_flow.py.
+    comment: Entry ID plus semantic entity key; reconfiguration preserves history. tests/test_config_flow.py. VoltBridge entities use the P1 meter serial plus entity key.
   has-entity-name:
     status: done
-    comment: MyGridEntity sets has_entity_name for all platforms.
+    comment: MyGridEntity sets has_entity_name for all platforms. VoltBridgeEntity does the same.
   runtime-data:
     status: done
-    comment: Typed MyGridConfigEntry stores coordinator in runtime_data.
+    comment: Typed MyGridConfigEntry stores coordinator in runtime_data. VoltBridgeConfigEntry does the same for the VoltBridge.
   test-before-configure:
     status: done
-    comment: Config flow probes a full supported map before creation.
+    comment: Config flow probes a full supported map before creation. The VoltBridge flow reads one real snapshot, and a P1 serial, before creating an entry.
   test-before-setup:
     status: done
-    comment: Setup probes once before forwarding platforms. tests/test_integration.py.
+    comment: Setup probes once before forwarding platforms. tests/test_integration.py. The VoltBridge reads its first snapshot before platforms; no data raises ConfigEntryNotReady.
   unique-config-entry:
     status: done
-    comment: Normalized endpoint duplicate checks before/after probe; hardware identity unavailable in protocol.
+    comment: Normalized endpoint duplicate checks before/after probe; hardware identity unavailable in protocol. VoltBridge entries are unique per P1 serial, so a new address updates the entry.
   action-exceptions:
     status: done
     comment: Standard entity actions raise translated ServiceValidationError or HomeAssistantError.
@@ -83,25 +84,25 @@ rules:
     comment: Coordinator logs failure and recovery transitions. tests/test_integration.py.
   parallel-updates:
     status: done
-    comment: Platforms declare PARALLEL_UPDATES; client/coordinator serialize operations and the HA Modbus manager shares and serializes the physical link.
+    comment: Platforms declare PARALLEL_UPDATES; client/coordinator serialize operations and the HA Modbus manager shares and serializes the physical link. VoltBridge sensors use PARALLEL_UPDATES = 0 and are serialised by the client.
   reauthentication-flow:
     status: exempt
     comment: Documented Modbus TCP endpoint has no authentication.
   test-coverage:
     status: done
-    comment: Core-layout tests cover first refresh, UpdateReports, restored totals, raw diagnostics and shared sockets; CI requires at least 95 percent coverage.
+    comment: Core-layout tests cover first refresh, UpdateReports, restored totals, raw diagnostics and shared sockets; CI requires at least 95 percent coverage. Overall coverage is above 99 percent including the VoltBridge.
   devices:
     status: done
-    comment: One device per configured endpoint, without fabricated serial or follower identities.
+    comment: One device per configured endpoint, without fabricated serial or follower identities. The VoltBridge device carries its serial, MAC connection and web page.
   diagnostics:
     status: done
     comment: Fresh replayable raw dumps and snapshots omit endpoint/entry identities; offline and not-loaded paths are tested. tests/test_integration.py.
   discovery:
-    status: exempt
-    comment: Supplied protocol defines no discoverable service or hardware identity.
+    status: done
+    comment: The VoltBridge advertises _mygrid._tcp (zeroconf) and is followed by DHCP for known devices. The ModuleTwo defines no discoverable service.
   discovery-update-info:
-    status: exempt
-    comment: No discovery transport; address changes use reconfiguration.
+    status: done
+    comment: A VoltBridge address change updates the entry host and MAC. The ModuleTwo uses reconfiguration. tests/test_voltbridge_config_flow.py.
   docs-data-update:
     status: done
     comment: Developer README and draft user documentation documents polling, command reads, staleness and reconnect behavior.
@@ -113,7 +114,7 @@ rules:
     comment: Developer README and draft user documentation lists one client, competing controllers, no watchdog guarantee and cluster scope limits.
   docs-supported-devices:
     status: done
-    comment: Developer README and draft user documentation explicitly limits support to ModuleTwo map 2.
+    comment: Developer README and draft user documentation explicitly limits support to ModuleTwo map 2. The documentation covers the VoltBridge firmware build 15.6 and its unverified export/L2/L3 fields.
   docs-supported-functions:
     status: done
     comment: Developer README and draft user documentation entity table and docs/protocol.md register summary.
@@ -125,31 +126,31 @@ rules:
     comment: Developer README and draft user documentation covers battery monitoring, Energy dashboard, fault alerts and explicit automation.
   dynamic-devices:
     status: exempt
-    comment: Protocol has no follower enumeration; a configured endpoint always represents one device.
+    comment: Each config entry represents exactly one device; the protocols enumerate no sub-devices.
   entity-category:
     status: done
-    comment: Faults, map version and restart are diagnostics; operational power control is a primary entity.
+    comment: Faults, map version and restart are diagnostics; operational power control is a primary entity. VoltBridge breaker, limiter, fuse and peak time are diagnostics.
   entity-device-class:
     status: done
     comment: Battery, power, energy, energy storage, enum, problem and restart classes are assigned.
   entity-disabled-by-default:
     status: done
-    comment: Per-fault indicators, raw flags, map version and restart are opt-in.
+    comment: Per-fault indicators, raw flags, map version and restart are opt-in. VoltBridge per-phase power and limiter/fuse thresholds are opt-in.
   entity-translations:
     status: done
-    comment: All names and enum states have English translation keys and a matching strings.json.
+    comment: All names and enum states have English translation keys and a matching strings.json. VoltBridge names and enum states are translated too.
   exception-translations:
     status: done
     comment: Communication, map and command errors have translated exception messages.
   icon-translations:
     status: done
-    comment: Standard device-class icons plus icons.json for unclassified diagnostic sensors.
+    comment: Standard device-class icons plus icons.json for unclassified diagnostic sensors. VoltBridge tariff and breaker states have icons.json entries.
   reconfiguration-flow:
     status: done
     comment: Address reconfiguration preserves identity and restores prior settings on probe failure.
   repair-issues:
-    status: exempt
-    comment: No separately repairable conditions; actionable setup and communication errors use standard HA flows.
+    status: done
+    comment: A repair issue is raised while a reachable VoltBridge receives no P1 data and clears itself. tests/test_voltbridge_integration.py.
   stale-devices:
     status: exempt
     comment: No dynamic subdevices; entry removal removes the single configured device through HA.
@@ -157,8 +158,8 @@ rules:
     status: done
     comment: Independent mygrid-modbus library accepts ModbusUnit; HA owns the async shared connection. Both backend suites verify no write retries.
   inject-websession:
-    status: exempt
-    comment: Modbus TCP has no HTTP websession.
+    status: done
+    comment: The VoltBridge client uses the Home Assistant aiohttp session. The ModuleTwo uses the shared Modbus manager.
   strict-typing:
     status: done
-    comment: All integration modules pass strict mypy; CI runs the same check.
+    comment: All integration modules pass strict mypy; CI runs the same check. The merged integration passes strict mypy.

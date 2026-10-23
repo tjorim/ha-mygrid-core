@@ -19,14 +19,14 @@ from mygrid_modbus import InvalidSetpointError, MyGridDevice, UnsupportedMapErro
 from .const import CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL, DOMAIN
 
 LOGGER = logging.getLogger(__name__)
-type MyGridConfigEntry = ConfigEntry[MyGridCoordinator]
+type ModuleTwoConfigEntry = ConfigEntry[ModuleTwoCoordinator]
 
 
-class MyGridCoordinator(DataUpdateCoordinator[UpdateReport]):
+class ModuleTwoCoordinator(DataUpdateCoordinator[UpdateReport]):
     """Publish coherent snapshots and never replay a power command."""
 
     def __init__(
-        self, hass: HomeAssistant, entry: MyGridConfigEntry, device: MyGridDevice
+        self, hass: HomeAssistant, entry: ModuleTwoConfigEntry, device: MyGridDevice
     ) -> None:
         super().__init__(
             hass,

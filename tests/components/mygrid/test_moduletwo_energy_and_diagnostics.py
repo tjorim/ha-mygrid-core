@@ -10,9 +10,9 @@ from modbus_connection.model import UpdateReport
 from homeassistant.components.mygrid.diagnostics import (
     async_get_config_entry_diagnostics,
 )
-from homeassistant.components.mygrid.sensor import MyGridTotalSensor
+from homeassistant.components.mygrid.moduletwo_sensor import ModuleTwoTotalSensor
 
-from .test_integration import setup, state
+from .test_moduletwo_integration import setup, state
 
 
 async def test_counters_hold_during_outage_and_accept_real_reset(
@@ -44,7 +44,7 @@ async def test_restored_counter_when_link_drops_during_entity_setup(
         return SensorExtraStoredData(value, "Wh")
 
     with patch.object(
-        MyGridTotalSensor,
+        ModuleTwoTotalSensor,
         "async_get_last_sensor_data",
         autospec=True,
         side_effect=restore,

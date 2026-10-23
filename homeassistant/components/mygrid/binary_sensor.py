@@ -1,53 +1,18 @@
-"""Aggregate battery problems and optional per-fault diagnostics."""
+"""Binary sensors (ModuleTwo faults)."""
 
-from homeassistant.components.binary_sensor import (
-    BinarySensorEntity,
-)
-from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
-from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-from mygrid_modbus import FAULTS
 
-from .coordinator import MyGridConfigEntry, MyGridCoordinator
-from .entity import MyGridEntity
+from .moduletwo_binary_sensor import async_setup_entry as async_setup_moduletwo
+from .moduletwo_coordinator import ModuleTwoConfigEntry
 
 PARALLEL_UPDATES = 0
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: MyGridConfigEntry,
+    entry: ModuleTwoConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Create aggregate and opt-in fault entities."""
-    async_add_entities(
-        [MyGridProblem(entry.runtime_data, entry.entry_id)]
-        + [MyGridProblem(entry.runtime_data, entry.entry_id, bit) for bit in FAULTS]
-    )
-
-
-class MyGridProblem(MyGridEntity, BinarySensorEntity):
-    """A problem remains unknown while fault telemetry is stale."""
-
-    _attr_device_class = BinarySensorDeviceClass.PROBLEM
-    _attr_entity_category = EntityCategory.DIAGNOSTIC
-
-    def __init__(
-        self, coordinator: MyGridCoordinator, identity: str, bit: int | None = None
-    ) -> None:
-        key = "problem" if bit is None else f"fault_{FAULTS[bit]}"
-        super().__init__(coordinator, identity, key)
-        self._bit = bit
-        self._attr_translation_key = key
-        self._attr_entity_registry_enabled_default = bit is None
-
-    @property
-    def is_on(self) -> bool | None:
-        """Report either the aggregate fault or a particular documented bit."""
-        data = self.coordinator.device.snapshot
-        if data.fault_flags is None:
-            return None
-        if self._bit is None:
-            return data.status == 1 or data.fault_flags != 0
-        return bool(data.fault_flags & (1 << self._bit))
+    """Only ModuleTwo entries forward this platform."""
+    await async_setup_moduletwo(hass, entry, async_add_entities)

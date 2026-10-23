@@ -1,51 +1,18 @@
-"""Explicit charge/discharge power control."""
+"""Power setpoint control (ModuleTwo)."""
 
-from homeassistant.components.number import NumberDeviceClass, NumberEntity, NumberMode
-from homeassistant.const import UnitOfPower
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .coordinator import MyGridConfigEntry
-from .entity import MyGridEntity
+from .moduletwo_coordinator import ModuleTwoConfigEntry
+from .moduletwo_number import async_setup_entry as async_setup_moduletwo
 
 PARALLEL_UPDATES = 1
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: MyGridConfigEntry,
+    entry: ModuleTwoConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Add a confirmed-state power control; do not restore prior commands."""
-    async_add_entities(
-        [MyGridPowerSetpoint(entry.runtime_data, entry.entry_id, "power_setpoint")]
-    )
-
-
-class MyGridPowerSetpoint(MyGridEntity, NumberEntity):
-    """A 100 W setpoint bounded by live limits and signed register range."""
-
-    _attr_translation_key = "power_setpoint"
-    _attr_device_class = NumberDeviceClass.POWER
-    _attr_native_unit_of_measurement = UnitOfPower.WATT
-    _attr_native_step = 100
-    _attr_mode = NumberMode.BOX
-
-    @property
-    def native_value(self) -> float:
-        """Return the device's accepted value."""
-        return self.coordinator.device.snapshot.setpoint
-
-    @property
-    def native_min_value(self) -> float:
-        """Cap unsigned device limits to the signed register range."""
-        return -min(self.coordinator.device.snapshot.max_discharge, 3276800)
-
-    @property
-    def native_max_value(self) -> float:
-        """Return the current charge limit in watts."""
-        return min(self.coordinator.device.snapshot.max_charge, 3276700)
-
-    async def async_set_native_value(self, value: float) -> None:
-        """Send a single explicit command and publish readback."""
-        await self.coordinator.async_set_power(value)
+    """Only ModuleTwo entries forward this platform."""
+    await async_setup_moduletwo(hass, entry, async_add_entities)

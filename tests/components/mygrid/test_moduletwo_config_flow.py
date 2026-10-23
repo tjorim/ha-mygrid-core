@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 from homeassistant.components.modbus.connection import async_get_connection_info
-from homeassistant.config_entries import SOURCE_RECONFIGURE, SOURCE_USER
+from homeassistant.config_entries import SOURCE_RECONFIGURE
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.exceptions import HomeAssistantError
 from mygrid_modbus import MyGridError, UnsupportedMapError
@@ -12,6 +12,7 @@ from mygrid_modbus import MyGridError, UnsupportedMapError
 from homeassistant.components.mygrid.config_flow import normalize_host
 from homeassistant.components.mygrid.const import DOMAIN
 from tests.common import MockConfigEntry
+from tests.components.mygrid.conftest import start_moduletwo
 
 
 @pytest.mark.parametrize(
@@ -38,16 +39,18 @@ def test_invalid_host(host):
 
 async def test_user(hass, mock_client):
     with patch("homeassistant.components.mygrid.async_setup_entry", return_value=True):
-        result = await hass.config_entries.flow.async_init(
-            DOMAIN, context={"source": SOURCE_USER}
-        )
+        result = await start_moduletwo(hass)
         assert result["type"] == FlowResultType.FORM
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"], {"host": " BATTERY.Local. ", "port": 502}
         )
         await hass.async_block_till_done()
     assert result["type"] == FlowResultType.CREATE_ENTRY
-    assert result["data"] == {"host": "battery.local", "port": 502}
+    assert result["data"] == {
+        "host": "battery.local",
+        "port": 502,
+        "device": "moduletwo",
+    }
     assert result["result"].unique_id
     assert async_get_connection_info(hass) == []
     mock_client.async_set_power.assert_not_called()
@@ -59,20 +62,14 @@ async def test_user(hass, mock_client):
 )
 async def test_setup_errors(hass, mock_client, error, key):
     mock_client.async_read.side_effect = error
-    result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": SOURCE_USER}, data={"host": "battery", "port": 502}
-    )
+    result = await start_moduletwo(hass, {"host": "battery", "port": 502})
     assert result["errors"] == {"base": key}
     assert async_get_connection_info(hass) == []
 
 
 async def test_duplicate(hass, entry, mock_client):
     entry.add_to_hass(hass)
-    result = await hass.config_entries.flow.async_init(
-        DOMAIN,
-        context={"source": SOURCE_USER},
-        data={"host": "BATTERY.LOCAL.", "port": 502},
-    )
+    result = await start_moduletwo(hass, {"host": "BATTERY.LOCAL.", "port": 502})
     assert result["type"] == FlowResultType.ABORT
     assert result["reason"] == "already_configured"
     mock_client.async_read.assert_not_called()
@@ -85,9 +82,7 @@ async def test_duplicate_during_probe(hass, mock_client):
         ).add_to_hass(hass)
 
     mock_client.async_read.side_effect = probe
-    result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": SOURCE_USER}, data={"host": "battery", "port": 502}
-    )
+    result = await start_moduletwo(hass, {"host": "battery", "port": 502})
     assert result["reason"] == "already_configured"
 
 
@@ -209,10 +204,6 @@ async def test_probe_link_conflict(hass, mock_client):
         "homeassistant.components.mygrid.config_flow.async_get_temporary_unit",
         side_effect=HomeAssistantError("different link settings"),
     ):
-        result = await hass.config_entries.flow.async_init(
-            DOMAIN,
-            context={"source": SOURCE_USER},
-            data={"host": "battery", "port": 502},
-        )
+        result = await start_moduletwo(hass, {"host": "battery", "port": 502})
     assert result["errors"] == {"base": "link_settings_in_use"}
     mock_client.async_read.assert_not_called()

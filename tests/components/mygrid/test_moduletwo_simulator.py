@@ -3,22 +3,20 @@
 import pytest
 from homeassistant.components.modbus import async_get_temporary_unit
 from homeassistant.components.modbus.connection import async_get_connection_info
-from homeassistant.config_entries import SOURCE_USER, ConfigEntryState
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.data_entry_flow import FlowResultType
 from modbus_connection import ModbusTcpParams
 
-from homeassistant.components.mygrid.const import DOMAIN
-from tests.components.mygrid.simulator import BatterySimulator
+from tests.components.mygrid.conftest import start_moduletwo
+from tests.components.mygrid.moduletwo_simulator import BatterySimulator
 
 pytestmark = [pytest.mark.simulator, pytest.mark.usefixtures("socket_enabled")]
 
 
 async def test_home_assistant_end_to_end(hass, registers):
     async with BatterySimulator(registers) as battery:
-        result = await hass.config_entries.flow.async_init(
-            DOMAIN,
-            context={"source": SOURCE_USER},
-            data={"host": "127.0.0.1", "port": battery.port},
+        result = await start_moduletwo(
+            hass, {"host": "127.0.0.1", "port": battery.port}
         )
         assert result["type"] == FlowResultType.CREATE_ENTRY
         await hass.async_block_till_done()
@@ -42,10 +40,8 @@ async def test_probe_runtime_restart_and_unload_share_peer_connection(hass, regi
         async with async_get_temporary_unit(hass, params, 1) as peer:
             peer.require_timeout(3)
             assert (await peer.read_holding_registers(0, 18))[1] == 82
-            result = await hass.config_entries.flow.async_init(
-                DOMAIN,
-                context={"source": SOURCE_USER},
-                data={"host": "127.0.0.1", "port": battery.port},
+            result = await start_moduletwo(
+                hass, {"host": "127.0.0.1", "port": battery.port}
             )
             assert result["type"] == FlowResultType.CREATE_ENTRY
             await hass.async_block_till_done()
@@ -72,10 +68,8 @@ async def test_probe_and_setup_failure_leave_peer_connected(hass, registers, ent
         async with async_get_temporary_unit(hass, params, 1) as peer:
             peer.require_timeout(3)
             await peer.read_holding_registers(0, 18)
-            result = await hass.config_entries.flow.async_init(
-                DOMAIN,
-                context={"source": SOURCE_USER},
-                data={"host": "127.0.0.1", "port": battery.port},
+            result = await start_moduletwo(
+                hass, {"host": "127.0.0.1", "port": battery.port}
             )
             assert result["errors"] == {"base": "unsupported_map"}
             entry.add_to_hass(hass)
