@@ -10,6 +10,11 @@ COMPONENT = ROOT / "homeassistant/components/mygrid"
 
 def main() -> None:
     manifest = json.loads((COMPONENT / "manifest.json").read_text())
+    assert list(manifest) == [
+        "domain",
+        "name",
+        *sorted(set(manifest) - {"domain", "name"}),
+    ]
     assert manifest["domain"] == "mygrid"
     assert manifest["dependencies"] == ["modbus"]
     assert manifest["requirements"] == ["mygrid-modbus==0.1.0"]
