@@ -68,9 +68,9 @@ class Profile:
 PROFILES = {
     "moduletwo": Profile(
         device="moduletwo",
-        domain="mygrid_moduletwo",
+        domain="mygrid_modbus",
         name="MyGrid ModuleTwo",
-        repo="ha-mygrid-moduletwo",
+        repo="ha-mygrid-modbus",
         library="mygrid-modbus",
         package="mygrid_modbus",
         library_dir="mygrid-modbus",

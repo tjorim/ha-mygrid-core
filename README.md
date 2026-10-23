@@ -11,7 +11,7 @@ It is an **overlay**, not a full Home Assistant fork or an accepted upstream int
 | `mygrid-modbus` | Independent PyPI device library for the ModuleTwo using `Device`, `Component`, typed fields and the supplied mock backend |
 | `mygrid-voltbridge` | Independent PyPI client library for the VoltBridge: HTTP API, raw DSMR telegram, UDP broadcast decoder |
 | `ha-mygrid-core` | This canonical integration, its core-layout tests and draft user documentation |
-| `ha-mygrid-moduletwo` | Generated HACS package for the ModuleTwo (domain `mygrid_moduletwo`) with the vendored library |
+| `ha-mygrid-modbus` | Generated HACS package for the ModuleTwo (domain `mygrid_modbus`) with the vendored library |
 | `ha-mygrid-voltbridge` | Generated HACS package for the VoltBridge (domain `mygrid_voltbridge`) with the vendored library |
 
 HACS allows one integration (one domain) per repository, so each device has its own HACS repository instead of one umbrella package; community testing does not require PyPI publication. The umbrella integration here keeps the single domain `mygrid` that a core submission needs.
@@ -58,7 +58,7 @@ The VoltBridge coordinator has no update interval: UDP telegrams (about 1 Hz) ar
 Edit device code in `mygrid-modbus` or `mygrid-voltbridge`, integration code/tests here, then regenerate both HACS packages from this repository:
 
 ```sh
-uv run python scripts/sync_hacs.py            # writes ../ha-mygrid-moduletwo and ../ha-mygrid-voltbridge
+uv run python scripts/sync_hacs.py            # writes ../ha-mygrid-modbus and ../ha-mygrid-voltbridge
 uv run python scripts/sync_hacs.py --check    # fails if either has drifted
 ```
 
