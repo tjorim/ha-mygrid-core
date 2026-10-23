@@ -19,16 +19,16 @@ jobs:
       # The libraries are development path sources next to this checkout.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          repository: tjorim/mygrid-modbus
-          ref: 81e26e35a3d10762933bae146364780889d6a464
-          path: mygrid-modbus
+          repository: tjorim/python-mygrid-modbus
+          ref: 3316c0aa820b5ad71aff79600df3dcae2a452b9d
+          path: python-mygrid-modbus
           fetch-depth: 0
           persist-credentials: false
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          repository: tjorim/mygrid-voltbridge
-          ref: a9075fc5e25a3a8055301e3f75a5dd0a3437d84c
-          path: mygrid-voltbridge
+          repository: tjorim/python-mygrid-voltbridge
+          ref: d03ba5115ef7a5de79a7a8427b3ad906923bb198
+          path: python-mygrid-voltbridge
           fetch-depth: 0
           persist-credentials: false
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884

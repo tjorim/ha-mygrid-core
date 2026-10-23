@@ -73,7 +73,7 @@ PROFILES = {
         repo="ha-mygrid-modbus",
         library="mygrid-modbus",
         package="mygrid_modbus",
-        library_dir="mygrid-modbus",
+        library_dir="python-mygrid-modbus",
         manifest={
             "dependencies": ["modbus"],
             "iot_class": "local_polling",
@@ -87,7 +87,7 @@ PROFILES = {
         repo="ha-mygrid-voltbridge",
         library="mygrid-voltbridge",
         package="mygrid_voltbridge",
-        library_dir="mygrid-voltbridge",
+        library_dir="python-mygrid-voltbridge",
         manifest={
             "iot_class": "local_push",
             "loggers": ["mygrid_voltbridge"],

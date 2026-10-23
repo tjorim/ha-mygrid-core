@@ -1214,8 +1214,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "mygrid-modbus", directory = "../mygrid-modbus" },
-    { name = "mygrid-voltbridge", directory = "../mygrid-voltbridge" },
+    { name = "mygrid-modbus", directory = "../python-mygrid-modbus" },
+    { name = "mygrid-voltbridge", directory = "../python-mygrid-voltbridge" },
 ]
 
 [package.metadata.requires-dev]
@@ -1826,7 +1826,7 @@ wheels = [
 
 [[package]]
 name = "mygrid-modbus"
-source = { directory = "../mygrid-modbus" }
+source = { directory = "../python-mygrid-modbus" }
 dependencies = [
     { name = "modbus-connection" },
 ]
@@ -1854,7 +1854,7 @@ dev = [
 
 [[package]]
 name = "mygrid-voltbridge"
-source = { directory = "../mygrid-voltbridge" }
+source = { directory = "../python-mygrid-voltbridge" }
 dependencies = [
     { name = "aiohttp" },
 ]

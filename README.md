@@ -8,8 +8,8 @@ It is an **overlay**, not a full Home Assistant fork or an accepted upstream int
 
 | Folder / repository | Purpose |
 | --- | --- |
-| `mygrid-modbus` | Independent PyPI device library for the ModuleTwo using `Device`, `Component`, typed fields and the supplied mock backend |
-| `mygrid-voltbridge` | Independent PyPI client library for the VoltBridge: HTTP API, raw DSMR telegram, UDP broadcast decoder |
+| `python-mygrid-modbus` | Independent PyPI package `mygrid-modbus`: device library for the ModuleTwo using `Device`, `Component`, typed fields and the supplied mock backend |
+| `python-mygrid-voltbridge` | Independent PyPI package `mygrid-voltbridge`, the client library for the VoltBridge: HTTP API, raw DSMR telegram, UDP broadcast decoder |
 | `ha-mygrid-core` | This canonical integration, its core-layout tests and draft user documentation |
 | `ha-mygrid-modbus` | Generated HACS package for the ModuleTwo (domain `mygrid_modbus`) with the vendored library |
 | `ha-mygrid-voltbridge` | Generated HACS package for the VoltBridge (domain `mygrid_voltbridge`) with the vendored library |
@@ -20,7 +20,7 @@ The canonical runtime files are under `homeassistant/components/mygrid`. Tests b
 
 ## Local checks
 
-Place this repository beside `mygrid-modbus` and `mygrid-voltbridge`, then:
+Place this repository beside `python-mygrid-modbus` and `python-mygrid-voltbridge`, then:
 
 ```sh
 uv sync --frozen
@@ -55,7 +55,7 @@ The VoltBridge coordinator has no update interval: UDP telegrams (about 1 Hz) ar
 
 ## Keeping HACS synchronized
 
-Edit device code in `mygrid-modbus` or `mygrid-voltbridge`, integration code/tests here, then regenerate both HACS packages from this repository:
+Edit device code in `python-mygrid-modbus` or `python-mygrid-voltbridge`, integration code/tests here, then regenerate both HACS packages from this repository:
 
 ```sh
 uv run python scripts/sync_hacs.py            # writes ../ha-mygrid-modbus and ../ha-mygrid-voltbridge

@@ -24,8 +24,8 @@ package = false
 
 [tool.uv.sources]
 # Development-only sources; the HA manifest installs the versioned PyPI releases.
-mygrid-modbus = { path = "../mygrid-modbus" }
-mygrid-voltbridge = { path = "../mygrid-voltbridge" }
+mygrid-modbus = { path = "../python-mygrid-modbus" }
+mygrid-voltbridge = { path = "../python-mygrid-voltbridge" }
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
