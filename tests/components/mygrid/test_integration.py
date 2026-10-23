@@ -18,10 +18,12 @@ from mygrid_modbus import (
     MyGridError,
     UnsupportedMapError,
 )
-from tests.common import async_fire_time_changed
 
 from homeassistant.components.mygrid.const import DOMAIN
-from homeassistant.components.mygrid.diagnostics import async_get_config_entry_diagnostics
+from homeassistant.components.mygrid.diagnostics import (
+    async_get_config_entry_diagnostics,
+)
+from tests.common import async_fire_time_changed
 
 
 def publish(coordinator, snapshot):
@@ -185,8 +187,9 @@ async def test_command_validation(hass, entry, mock_client):
 async def test_command_failed(hass, entry, mock_client):
     await setup(hass, entry)
     mock_client.async_set_power.side_effect = MyGridError()
-    with pytest.raises(HomeAssistantError, match="may have been applied"):
+    with pytest.raises(HomeAssistantError) as raised:
         await entry.runtime_data.async_set_power(600)
+    assert raised.value.translation_key == "command_failed"
     await hass.async_block_till_done()
     assert not entry.runtime_data.last_update_success
     assert state(hass, entry, "state_of_charge").state == STATE_UNAVAILABLE

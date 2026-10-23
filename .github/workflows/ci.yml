@@ -1,0 +1,30 @@
+name: Validate core contribution
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  overlay-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ha-mygrid-core
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: ha-mygrid-core
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: tjorim/mygrid-modbus
+          ref: d0019c763b2526ecb0e2fc462cf8f4ef628607d9
+          path: mygrid-modbus
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy
+      - run: uv run pytest
+      - run: uv run python scripts/validate_metadata.py

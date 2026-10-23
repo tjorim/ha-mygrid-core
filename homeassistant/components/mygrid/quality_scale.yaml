@@ -11,7 +11,7 @@ rules:
     comment: Add approved manufacturer artwork and submit to HA brands when publishing; no artwork rights were supplied.
   common-modules:
     status: done
-    comment: Independent mygrid-modbus package owns the protocol; const, coordinator and entity modules own HA lifecycle.
+    comment: Device/Component library owns register metadata and timing; common integration modules own HA lifecycle.
   config-flow:
     status: done
     comment: UI host/port setup with an actual map probe. tests/test_config_flow.py.
@@ -20,22 +20,22 @@ rules:
     comment: tests/test_config_flow.py covers success, duplicate, failure, options and reconfiguration paths.
   dependency-transparency:
     status: done
-    comment: README and manifest disclose mygrid-modbus==0.1.0, the shared modbus-connection transport and publication prerequisite.
+    comment: Developer README and draft user documentation and manifest disclose mygrid-modbus==0.1.0, the shared modbus-connection transport and publication prerequisite.
   docs-actions:
     status: done
-    comment: README explains number.set_value and button.press, confirmation and uncertainty.
+    comment: Developer README and draft user documentation explains number.set_value and button.press, confirmation and uncertainty.
   docs-conditions:
     status: exempt
     comment: No custom automation conditions.
   docs-high-level-description:
     status: done
-    comment: README introduction and protocol scope.
+    comment: Developer README and draft user documentation introduction and protocol scope.
   docs-installation-instructions:
     status: done
-    comment: README provides immediately usable manual installation and post-publication HACS instructions.
+    comment: Developer README and draft user documentation provides immediately usable manual installation and post-publication HACS instructions.
   docs-removal-instructions:
     status: done
-    comment: README explains entry removal, uninstalling and retained battery setpoints.
+    comment: Developer README and draft user documentation explains entry removal, uninstalling and retained battery setpoints.
   docs-triggers:
     status: exempt
     comment: No custom automation triggers.
@@ -68,13 +68,13 @@ rules:
     comment: Platform unload removes listeners and releases the managed unit; other consumers keep their connection. tests/test_integration.py.
   docs-configuration-parameters:
     status: done
-    comment: README explains polling interval, bounds and default.
+    comment: Developer README and draft user documentation explains polling interval, bounds and default.
   docs-installation-parameters:
     status: done
-    comment: README documents host, port and fixed unit ID.
+    comment: Developer README and draft user documentation documents host, port and fixed unit ID.
   entity-unavailable:
     status: done
-    comment: Coordinator marks disconnected entities unavailable; status-2 fields become unknown.
+    comment: Live measurements follow component availability; restored cumulative counters retain confirmed values through outages.
   integration-owner:
     status: todo
     comment: Connected account @tjorim is listed in codeowners; confirm ongoing maintainership before publication.
@@ -89,13 +89,13 @@ rules:
     comment: Documented Modbus TCP endpoint has no authentication.
   test-coverage:
     status: done
-    comment: CI requires at least 95 percent branch-aware coverage of the integration.
+    comment: Core-layout tests cover first refresh, UpdateReports, restored totals, raw diagnostics and shared sockets; CI requires at least 95 percent coverage.
   devices:
     status: done
     comment: One device per configured endpoint, without fabricated serial or follower identities.
   diagnostics:
     status: done
-    comment: Allowlisted snapshots omit endpoint and entry identities. tests/test_integration.py.
+    comment: Fresh replayable raw dumps and snapshots omit endpoint/entry identities; offline and not-loaded paths are tested. tests/test_integration.py.
   discovery:
     status: exempt
     comment: Supplied protocol defines no discoverable service or hardware identity.
@@ -104,25 +104,25 @@ rules:
     comment: No discovery transport; address changes use reconfiguration.
   docs-data-update:
     status: done
-    comment: README documents polling, command reads, staleness and reconnect behavior.
+    comment: Developer README and draft user documentation documents polling, command reads, staleness and reconnect behavior.
   docs-examples:
     status: done
-    comment: README includes scheduled charge and explicit idle automations.
+    comment: Developer README and draft user documentation includes scheduled charge and explicit idle automations.
   docs-known-limitations:
     status: done
-    comment: README lists one client, competing controllers, no watchdog guarantee and cluster scope limits.
+    comment: Developer README and draft user documentation lists one client, competing controllers, no watchdog guarantee and cluster scope limits.
   docs-supported-devices:
     status: done
-    comment: README explicitly limits support to ModuleTwo map 2.
+    comment: Developer README and draft user documentation explicitly limits support to ModuleTwo map 2.
   docs-supported-functions:
     status: done
-    comment: README entity table and docs/protocol.md register summary.
+    comment: Developer README and draft user documentation entity table and docs/protocol.md register summary.
   docs-troubleshooting:
     status: done
-    comment: README troubleshooting table, uncertainty handling and diagnostics.
+    comment: Developer README and draft user documentation troubleshooting table, uncertainty handling and diagnostics.
   docs-use-cases:
     status: done
-    comment: README covers battery monitoring, Energy dashboard, fault alerts and explicit automation.
+    comment: Developer README and draft user documentation covers battery monitoring, Energy dashboard, fault alerts and explicit automation.
   dynamic-devices:
     status: exempt
     comment: Protocol has no follower enumeration; a configured endpoint always represents one device.

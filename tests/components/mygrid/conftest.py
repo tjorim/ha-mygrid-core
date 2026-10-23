@@ -6,9 +6,9 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from modbus_connection.model import UpdateReport
 from mygrid_modbus import BatteryData, MyGridDevice
-from tests.common import MockConfigEntry
 
 from homeassistant.components.mygrid.const import DOMAIN
+from tests.common import MockConfigEntry
 
 
 @pytest.fixture
@@ -34,7 +34,10 @@ def mock_client(registers: list[int]) -> Generator[AsyncMock]:
     device.async_set_power.side_effect = confirm
     with (
         patch("homeassistant.components.mygrid.MyGridDevice", return_value=device),
-        patch("homeassistant.components.mygrid.config_flow.MyGridDevice", return_value=device),
+        patch(
+            "homeassistant.components.mygrid.config_flow.MyGridDevice",
+            return_value=device,
+        ),
     ):
         yield device
 

@@ -3,6 +3,7 @@
 from dataclasses import asdict
 from typing import Any
 
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from modbus_connection import ModbusError
 
@@ -13,6 +14,13 @@ async def async_get_config_entry_diagnostics(
     hass: HomeAssistant, entry: MyGridConfigEntry
 ) -> dict[str, Any]:
     """Allowlist device fields and raw words; omit addresses and entry identities."""
+    if entry.state is not ConfigEntryState.LOADED:
+        return {
+            "options": dict(entry.options),
+            "last_update_success": False,
+            "registers": None,
+            "registers_error": "NotLoaded",
+        }
     coordinator = entry.runtime_data
     payload: dict[str, Any] = {
         "options": dict(entry.options),

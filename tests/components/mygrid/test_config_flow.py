@@ -8,10 +8,10 @@ from homeassistant.config_entries import SOURCE_RECONFIGURE, SOURCE_USER
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.exceptions import HomeAssistantError
 from mygrid_modbus import MyGridError, UnsupportedMapError
-from tests.common import MockConfigEntry
 
 from homeassistant.components.mygrid.config_flow import normalize_host
 from homeassistant.components.mygrid.const import DOMAIN
+from tests.common import MockConfigEntry
 
 
 @pytest.mark.parametrize(
