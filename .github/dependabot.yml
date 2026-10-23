@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # The uv ecosystem is omitted on purpose: this repository resolves its
+  # libraries from sibling checkouts (path sources), which Dependabot cannot see.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+      time: "18:00"
+      timezone: "Etc/UTC"
+    assignees:
+      - "tjorim"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
