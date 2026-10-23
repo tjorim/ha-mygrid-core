@@ -33,6 +33,16 @@ uv run python scripts/validate_metadata.py
 
 The library is installed as a package, not imported through a source-path shortcut. Its own tests run independently. Only the development uv source overrides reference the sibling checkouts; the production manifest requires `mygrid-modbus==0.1.0` and `mygrid-voltbridge==0.3.0` from PyPI.
 
+## Live check against a real VoltBridge
+
+`tests/components/mygrid/live` runs the real integration inside the Home Assistant test runtime against a real device: the config flow reads the meter, the entry sets up, and UDP push is observed. It is excluded from ordinary runs:
+
+```sh
+VOLTBRIDGE_HOST=192.168.0.45 uv run pytest -m live --no-cov
+```
+
+The generator copies it into the VoltBridge HACS package. There is no equivalent for the ModuleTwo yet, because no ModuleTwo has answered on Modbus.
+
 ## Preparing the core change
 
 1. Publish the reviewed device-library versions to PyPI and verify a clean installation.
