@@ -151,11 +151,12 @@ def pinned_version(profile: Profile) -> str:
         match = re.fullmatch(r"([a-z-]+)==([0-9][^\s]*)", requirement)
         if match and match.group(1) == profile.library:
             return match.group(2)
-    raise SystemExit(f"Core manifest does not pin {profile.library}")
+    message = f"Core manifest does not pin {profile.library}"
+    raise SystemExit(message)
 
 
 def voltbridge_entity_keys() -> set[str]:
-    """Translation keys of the VoltBridge entities.
+    """Return the translation keys of the VoltBridge entities.
 
     Descriptions either spell the key out (``translation_key="gas"``) or pass it
     as the first argument of a helper (``_power("net_power", ...)``).
@@ -197,7 +198,8 @@ def filter_strings(strings: dict, profile: Profile) -> dict:
         if not items:
             del result["entity"][platform]
     if not result["config"]["step"].get("reconfigure_" + profile.device):
-        raise SystemExit("Missing reconfigure strings")
+        message = "Missing reconfigure strings"
+        raise SystemExit(message)
     return result
 
 
@@ -225,7 +227,7 @@ def adapt_python(content: str, profile: Profile, *, vendored_prefix: str) -> str
 
 
 def component_files(profile: Profile, target: Path, library: Path) -> dict[Path, bytes]:
-    """The generated integration: shared code, one device's modules, glue, vendor."""
+    """Return the generated integration: shared code, one device's modules, glue, vendor."""
     files: dict[Path, bytes] = {}
     base = Path("custom_components") / profile.domain
     other = OTHER[profile.device]
@@ -316,6 +318,7 @@ def component_files(profile: Profile, target: Path, library: Path) -> dict[Path,
 
 
 def flows_helper(profile: Profile) -> str:
+    """Return the source of the single-device flow helper used by the tests."""
     return f'''"""Start the config flow the way a user does; this package has no device menu."""
 
 from homeassistant.config_entries import SOURCE_USER
@@ -335,6 +338,7 @@ async def start_{profile.device}(hass, data=None):
 
 
 def conftest(profile: Profile) -> str:
+    """Return the source of the single-device test conftest."""
     names = {
         "moduletwo": "entry, mock_client, registers",
         "voltbridge": "vb_client, vb_entry, vb_listener, vb_setup_entry",
@@ -352,6 +356,25 @@ def custom_integrations(enable_custom_integrations):
 '''
 
 
+def adapt_test(content: str, profile: Profile) -> str:
+    """Move a core-layout test into the custom-component namespace."""
+    content = adapt_python(
+        content, profile, vendored_prefix=f"custom_components.{profile.domain}.vendor"
+    )
+    return (
+        content.replace(
+            "homeassistant.components.mygrid", f"custom_components.{profile.domain}"
+        )
+        .replace(
+            "from tests.common import",
+            "from pytest_homeassistant_custom_component.common import",
+        )
+        .replace("tests.components.mygrid.", "tests.")
+        .replace('"mygrid"', f'"{profile.domain}"')
+        .replace("Error fetching mygrid", f"Error fetching {profile.domain}")
+    )
+
+
 def test_files(profile: Profile) -> dict[Path, bytes]:
     """The device's tests, adapted to the custom-component namespace."""
     files: dict[Path, bytes] = {}
@@ -366,30 +389,19 @@ def test_files(profile: Profile) -> dict[Path, bytes]:
             if path.name == "fixtures" and profile.device == "voltbridge":
                 for fixture in sorted(path.iterdir()):
                     files[Path("tests/fixtures") / fixture.name] = fixture.read_bytes()
+            elif path.name == "live" and profile.device == "voltbridge":
+                for live in sorted(path.glob("*.py")):
+                    files[Path("tests/live") / live.name] = format_python(
+                        adapt_test(live.read_text(), profile),
+                        Path("tests/live") / live.name,
+                    ).encode()
             continue
         if path.suffix != ".py" or not path.name.startswith(own):
             continue
         if path.name.startswith(f"{other}_") or path.name.startswith(f"test_{other}_"):
             continue
-        content = adapt_python(
-            path.read_text(),
-            profile,
-            vendored_prefix=f"custom_components.{profile.domain}.vendor",
-        )
-        content = (
-            content.replace(
-                "homeassistant.components.mygrid", f"custom_components.{profile.domain}"
-            )
-            .replace(
-                "from tests.common import",
-                "from pytest_homeassistant_custom_component.common import",
-            )
-            .replace("tests.components.mygrid.", "tests.")
-            .replace('"mygrid"', f'"{profile.domain}"')
-            .replace("Error fetching mygrid", f"Error fetching {profile.domain}")
-        )
         files[Path("tests") / path.name] = format_python(
-            content, Path("tests") / path.name
+            adapt_test(path.read_text(), profile), Path("tests") / path.name
         ).encode()
     files[Path("tests/__init__.py")] = (TESTS / "__init__.py").read_bytes()
     files[Path("tests/conftest.py")] = format_python(
@@ -414,6 +426,7 @@ def stale_files(profile: Profile, target: Path, files: dict[Path, bytes]) -> lis
         f"custom_components/{profile.domain}/vendor/*/*",
         f"custom_components/{profile.domain}/vendor/LICENSE.*",
         "tests/*.py",
+        "tests/live/*.py",
         "tests/fixtures/*",
     )
     return [

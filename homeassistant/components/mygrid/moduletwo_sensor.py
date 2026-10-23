@@ -161,6 +161,7 @@ class ModuleTwoSensor(ModuleTwoEntity, SensorEntity):
         identity: str,
         description: ModuleTwoSensorDescription,
     ) -> None:
+        """Initialize the ModuleTwoSensor."""
         super().__init__(coordinator, identity, description.key)
         self.entity_description = description
 
@@ -193,10 +194,11 @@ class ModuleTwoTotalSensor(ModuleTwoSensor, RestoreSensor):
         return self._attr_native_value
 
     async def async_added_to_hass(self) -> None:
+        """Restore the last confirmed counter before the first update."""
         await super().async_added_to_hass()
-        if (stored := await self.async_get_last_sensor_data()) is not None:
-            if isinstance(stored.native_value, (int, float)):
-                self._attr_native_value = stored.native_value
+        stored = await self.async_get_last_sensor_data()
+        if stored is not None and isinstance(stored.native_value, (int, float)):
+            self._attr_native_value = stored.native_value
         self._update_total()
 
     def _update_total(self) -> None:

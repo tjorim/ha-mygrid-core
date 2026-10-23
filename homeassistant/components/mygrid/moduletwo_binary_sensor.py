@@ -34,6 +34,7 @@ class ModuleTwoProblem(ModuleTwoEntity, BinarySensorEntity):
     def __init__(
         self, coordinator: ModuleTwoCoordinator, identity: str, bit: int | None = None
     ) -> None:
+        """Initialize the ModuleTwoProblem."""
         key = "problem" if bit is None else f"fault_{FAULTS[bit]}"
         super().__init__(coordinator, identity, key)
         self._bit = bit

@@ -9,6 +9,7 @@ COMPONENT = ROOT / "homeassistant/components/mygrid"
 
 
 def main() -> None:
+    """Validate the core manifest and namespace boundaries."""
     manifest = json.loads((COMPONENT / "manifest.json").read_text())
     assert list(manifest) == [
         "domain",
@@ -25,7 +26,8 @@ def main() -> None:
     assert manifest["zeroconf"] == [
         {"type": "_mygrid._tcp.local.", "properties": {"model": "voltbridge*"}}
     ]
-    assert "version" not in manifest and "issue_tracker" not in manifest
+    assert "version" not in manifest
+    assert "issue_tracker" not in manifest
     assert (
         manifest["documentation"] == "https://www.home-assistant.io/integrations/mygrid"
     )

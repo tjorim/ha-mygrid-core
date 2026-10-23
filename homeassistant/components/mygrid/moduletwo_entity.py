@@ -15,6 +15,7 @@ class ModuleTwoEntity(CoordinatorEntity[ModuleTwoCoordinator]):
     def __init__(
         self, coordinator: ModuleTwoCoordinator, identity: str, key: str
     ) -> None:
+        """Initialize the ModuleTwoEntity."""
         super().__init__(coordinator)
         self._attr_unique_id = f"{identity}_{key}"
         self._attr_device_info = DeviceInfo(

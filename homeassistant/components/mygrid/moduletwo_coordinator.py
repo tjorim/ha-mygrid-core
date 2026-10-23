@@ -28,6 +28,7 @@ class ModuleTwoCoordinator(DataUpdateCoordinator[UpdateReport]):
     def __init__(
         self, hass: HomeAssistant, entry: ModuleTwoConfigEntry, device: MyGridDevice
     ) -> None:
+        """Initialize the ModuleTwoCoordinator."""
         super().__init__(
             hass,
             LOGGER,

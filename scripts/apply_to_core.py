@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main() -> None:
+    """Copy the overlay into a core checkout, or only print what it would copy."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("checkout", type=Path)
     parser.add_argument("--dry-run", action="store_true")
@@ -17,12 +18,12 @@ def main() -> None:
         not (checkout / "homeassistant/components").is_dir()
         or not (checkout / "tests/common.py").is_file()
     ):
-        raise SystemExit("Target must be a Home Assistant core source checkout.")
+        message = "Target must be a Home Assistant core source checkout."
+        raise SystemExit(message)
     paths = [Path("homeassistant/components/mygrid"), Path("tests/components/mygrid")]
     if any((checkout / path).exists() for path in paths):
-        raise SystemExit(
-            "Target already has MyGrid files; review and merge them manually."
-        )
+        message = "Target already has MyGrid files; review and merge them manually."
+        raise SystemExit(message)
     for path in paths:
         print(f"{ROOT / path} -> {checkout / path}")
     if not args.dry_run:
