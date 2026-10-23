@@ -11,7 +11,7 @@ from homeassistant import config_entries
 from homeassistant.components.mygrid.const import DOMAIN
 from tests.common import MockConfigEntry
 
-from .conftest import start_voltbridge
+from .flows import start_voltbridge
 from .voltbridge_support import SERIAL, make_data
 
 PROPERTIES = {

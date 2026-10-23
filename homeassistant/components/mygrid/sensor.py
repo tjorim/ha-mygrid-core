@@ -6,8 +6,8 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from . import device_type
 from .const import DEVICE_VOLTBRIDGE
+from .helpers import device_type
 from .moduletwo_sensor import async_setup_entry as async_setup_moduletwo
 from .voltbridge_sensor import async_setup_entry as async_setup_voltbridge
 

@@ -8,11 +8,11 @@ from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er
 from mygrid_voltbridge import P1Broadcast
 
-from homeassistant.components.mygrid import device_type
 from homeassistant.components.mygrid.const import DOMAIN
+from homeassistant.components.mygrid.helpers import device_type
 from tests.common import MockConfigEntry
 
-from .conftest import start_moduletwo, start_voltbridge
+from .flows import start_moduletwo, start_voltbridge
 from .voltbridge_support import SERIAL
 
 

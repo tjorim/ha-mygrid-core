@@ -319,7 +319,7 @@ async def test_failed_unload_keeps_connection(hass, entry, mock_client):
 async def test_setup_link_conflict(hass, entry, mock_client):
     entry.add_to_hass(hass)
     with patch(
-        "homeassistant.components.mygrid.async_get_unit",
+        "homeassistant.components.mygrid.moduletwo_setup.async_get_unit",
         side_effect=HomeAssistantError("different link settings"),
     ):
         assert not await hass.config_entries.async_setup(entry.entry_id)

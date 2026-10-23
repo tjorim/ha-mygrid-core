@@ -9,10 +9,10 @@ from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.exceptions import HomeAssistantError
 from mygrid_modbus import MyGridError, UnsupportedMapError
 
-from homeassistant.components.mygrid.config_flow import normalize_host
 from homeassistant.components.mygrid.const import DOMAIN
+from homeassistant.components.mygrid.helpers import normalize_host
 from tests.common import MockConfigEntry
-from tests.components.mygrid.conftest import start_moduletwo
+from tests.components.mygrid.flows import start_moduletwo
 
 
 @pytest.mark.parametrize(
@@ -201,7 +201,7 @@ async def test_reconfigure_cancellation_restores(hass, entry, mock_client):
 
 async def test_probe_link_conflict(hass, mock_client):
     with patch(
-        "homeassistant.components.mygrid.config_flow.async_get_temporary_unit",
+        "homeassistant.components.mygrid.moduletwo_config_flow.async_get_temporary_unit",
         side_effect=HomeAssistantError("different link settings"),
     ):
         result = await start_moduletwo(hass, {"host": "battery", "port": 502})

@@ -5,8 +5,8 @@ from typing import Any
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from . import device_type
 from .const import DEVICE_VOLTBRIDGE
+from .helpers import device_type
 from .moduletwo_diagnostics import async_get_config_entry_diagnostics as moduletwo
 from .voltbridge_diagnostics import async_get_config_entry_diagnostics as voltbridge
 
