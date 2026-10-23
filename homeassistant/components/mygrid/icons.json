@@ -1,0 +1,12 @@
+{
+  "entity": {
+    "sensor": {
+      "map_version": {
+        "default": "mdi:counter"
+      },
+      "fault_flags": {
+        "default": "mdi:alert-circle-outline"
+      }
+    }
+  }
+}

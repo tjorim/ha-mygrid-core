@@ -1,0 +1,21 @@
+{
+  "codeowners": [
+    "@tjorim"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "modbus"
+  ],
+  "documentation": "https://www.home-assistant.io/integrations/mygrid",
+  "domain": "mygrid",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "loggers": [
+    "modbus_connection",
+    "tmodbus"
+  ],
+  "name": "MyGrid",
+  "requirements": [
+    "mygrid-modbus==0.1.0"
+  ]
+}

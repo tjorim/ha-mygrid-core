@@ -1,0 +1,190 @@
+{
+  "title": "MyGrid",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to MyGrid",
+        "description": "Enable the Home Assistant control source in the MyGrid app first. Connect to the Auto leader for a cluster. The battery accepts one Modbus client at a time.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure MyGrid",
+        "description": "Enable the Home Assistant control source in the MyGrid app first. Connect to the Auto leader for a cluster. The battery accepts one Modbus client at a time.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot read the battery. Check the address, Home Assistant control source, cluster leader, and whether another client is connected.",
+      "unsupported_map": "This battery uses an unsupported Modbus register map. Only map version 2 is supported.",
+      "cannot_unload": "Could not unload the current connection. Try again after other integration tasks finish.",
+      "link_settings_in_use": "The battery connection is already in use with incompatible Modbus settings."
+    },
+    "abort": {
+      "already_configured": "This endpoint is already configured.",
+      "reconfigure_successful": "Connection settings updated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Polling",
+        "data": {
+          "poll_interval": "Polling interval (seconds)"
+        },
+        "description": "Read the battery every 2\u2013300 seconds. The default is 5 seconds."
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "state_of_charge": {
+        "name": "State of charge"
+      },
+      "power": {
+        "name": "Battery power"
+      },
+      "charging_power": {
+        "name": "Charging power"
+      },
+      "discharging_power": {
+        "name": "Discharging power"
+      },
+      "max_charge": {
+        "name": "Maximum charge power"
+      },
+      "max_discharge": {
+        "name": "Maximum discharge power"
+      },
+      "status": {
+        "name": "Status",
+        "state": {
+          "normal": "Normal",
+          "fault": "Fault",
+          "telemetry_stale": "Telemetry stale"
+        }
+      },
+      "stored_energy": {
+        "name": "Stored energy"
+      },
+      "lifetime_charged": {
+        "name": "Lifetime charged energy"
+      },
+      "lifetime_discharged": {
+        "name": "Lifetime discharged energy"
+      },
+      "total_capacity": {
+        "name": "Total capacity"
+      },
+      "map_version": {
+        "name": "Map version"
+      },
+      "fault_flags": {
+        "name": "Fault flags"
+      }
+    },
+    "binary_sensor": {
+      "problem": {
+        "name": "Problem"
+      },
+      "fault_battery_communication": {
+        "name": "Battery communication fault or system error"
+      },
+      "fault_internal_communication": {
+        "name": "Battery internal communication fault"
+      },
+      "fault_over_voltage": {
+        "name": "Battery over-voltage"
+      },
+      "fault_under_voltage": {
+        "name": "Battery under-voltage"
+      },
+      "fault_charge_over_current": {
+        "name": "Charge over-current"
+      },
+      "fault_discharge_over_current": {
+        "name": "Discharge over-current"
+      },
+      "fault_over_temperature": {
+        "name": "Battery over-temperature"
+      },
+      "fault_under_temperature": {
+        "name": "Battery under-temperature"
+      },
+      "fault_cell_imbalance": {
+        "name": "Cell voltage imbalance"
+      },
+      "fault_hardware_protection": {
+        "name": "Hardware protection"
+      },
+      "fault_other": {
+        "name": "Other fault"
+      },
+      "fault_voltage_sensor": {
+        "name": "Voltage sensor fault"
+      },
+      "fault_temperature_sensor": {
+        "name": "Temperature sensor fault"
+      },
+      "fault_current_sensor": {
+        "name": "Current sensor fault"
+      },
+      "fault_relay": {
+        "name": "Relay fault"
+      },
+      "fault_ac_parallel": {
+        "name": "AC parallel alarm"
+      },
+      "fault_solar_communication": {
+        "name": "Battery to solar-input communication fault"
+      },
+      "fault_forced_charge": {
+        "name": "Forced charge failed"
+      },
+      "fault_parallel_power": {
+        "name": "Parallel power fault"
+      },
+      "fault_fuse": {
+        "name": "Fuse fault"
+      },
+      "fault_precharge": {
+        "name": "Precharge fault"
+      },
+      "fault_temperature_difference": {
+        "name": "Temperature difference fault"
+      }
+    },
+    "number": {
+      "power_setpoint": {
+        "name": "Power setpoint"
+      }
+    },
+    "button": {
+      "restart": {
+        "name": "Restart"
+      }
+    }
+  },
+  "exceptions": {
+    "communication_error": {
+      "message": "Cannot read the battery. Check its connection and control source."
+    },
+    "unsupported_map": {
+      "message": "Unsupported battery register map. Only version 2 is supported."
+    },
+    "invalid_setpoint": {
+      "message": "Power must be a multiple of 100 W within the current battery limits."
+    },
+    "command_failed": {
+      "message": "The battery command could not be confirmed. It may have been applied. Read the battery state before sending another command."
+    },
+    "link_settings_in_use": {
+      "message": "The battery connection is already in use with incompatible Modbus settings."
+    }
+  }
+}

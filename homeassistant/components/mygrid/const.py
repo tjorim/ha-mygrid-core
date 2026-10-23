@@ -1,0 +1,8 @@
+"""Shared constants for MyGrid."""
+
+DOMAIN = "mygrid"
+DEFAULT_PORT = 502
+CONF_POLL_INTERVAL = "poll_interval"
+DEFAULT_POLL_INTERVAL = 5
+MIN_POLL_INTERVAL = 2
+MAX_POLL_INTERVAL = 300
