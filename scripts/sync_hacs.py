@@ -75,6 +75,7 @@ PROFILES = {
         package="mygrid_modbus",
         library_dir="python-mygrid-modbus",
         manifest={
+            "categories": ["energy.solar_batteries"],
             "dependencies": ["modbus"],
             "iot_class": "local_polling",
             "loggers": ["modbus_connection", "tmodbus"],
@@ -89,6 +90,7 @@ PROFILES = {
         package="mygrid_voltbridge",
         library_dir="python-mygrid-voltbridge",
         manifest={
+            "categories": ["energy.meters_monitoring"],
             "iot_class": "local_push",
             "loggers": ["mygrid_voltbridge"],
             "dhcp": [{"registered_devices": True}],
@@ -259,7 +261,14 @@ def component_files(profile: Profile, target: Path, library: Path) -> dict[Path,
         content = adapt_python(content, profile, vendored_prefix=".vendor")
         files[base / name] = format_python(content, base / name).encode()
     manifest = json.loads((COMPONENT / "manifest.json").read_text())
-    for key in ("dhcp", "zeroconf", "dependencies", "iot_class", "loggers"):
+    for key in (
+        "categories",
+        "dhcp",
+        "zeroconf",
+        "dependencies",
+        "iot_class",
+        "loggers",
+    ):
         manifest.pop(key, None)
     manifest.update(profile.manifest)
     manifest.update(
