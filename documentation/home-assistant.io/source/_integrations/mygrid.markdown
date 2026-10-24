@@ -37,6 +37,10 @@ The ModuleTwo is monitored and controlled using local Modbus TCP. The integratio
 
 Enable **Home Assistant** as the battery's control source in the MyGrid app. Home Assistant must already be available as a configured control-source choice for that battery. Put both devices on the same LAN. For a cluster, connect to the unit in **Auto** mode, which is the leader; do not use a Follow unit.
 
+{% note %}
+MyGrid's Modbus manual, published on [moduletwo.mygrid.energy](https://moduletwo.mygrid.energy/nl), says that setting the control source to **Home Assistant** in the MyGrid app opens the Modbus port. That may not be enough. On a battery used for development, port 502 stayed closed after that setting and MyGrid support was asked to enable Modbus on their side. If the integration cannot connect even though the app setting is correct, contact MyGrid support and ask them to enable Modbus TCP for your battery.
+{% endnote %}
+
 The battery serves one TCP client. Home Assistant shares its connection internally, but a separate Modbus test program must be disconnected. Choose one power controller because other app controls and integrations share the same setpoint.
 
 ### Configuration
@@ -69,7 +73,7 @@ Remove the entry through Devices & services to stop polling and release its conn
 
 ## VoltBridge P1 meter
 
-The VoltBridge reads the digital electricity (and gas and water) meter through its P1 port. The integration uses the device's local, unauthenticated HTTP API and its UDP broadcast; it does not need an MQTT broker. The API is unofficial and was verified on one single-phase meter with firmware build 15.6.
+The [VoltBridge](https://moduletwo.mygrid.energy/nl/voltbridge) reads the digital electricity (and gas and water) meter through its P1 port. The integration uses the device's local, unauthenticated HTTP API and its UDP broadcast; it does not need an MQTT broker. The API is unofficial and was verified on one single-phase meter with firmware build 15.6.
 
 ### Prerequisites
 
