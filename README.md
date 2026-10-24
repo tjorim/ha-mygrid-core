@@ -21,7 +21,7 @@ It is an **overlay**, not a full Home Assistant fork or an accepted upstream int
 | `ha-mygrid-modbus` | HACS integration for the ModuleTwo (domain `mygrid_modbus`), hand-maintained, depending on the PyPI library |
 | `ha-mygrid-voltbridge` | HACS integration for the VoltBridge (domain `mygrid_voltbridge`), hand-maintained, depending on the PyPI library |
 
-HACS allows one integration (one domain) per repository, so each device has its own HACS repository instead of one umbrella package; community testing does not require PyPI publication. The umbrella integration here keeps the single domain `mygrid` that a core submission needs.
+HACS allows one integration (one domain) per repository, so each device has its own HACS repository instead of one umbrella package. The source-ownership transition is complete: the hand-maintained HACS repositories are the integration source of truth, and `mygrid-modbus==0.1.1` and `mygrid-voltbridge==0.4.0` are published on PyPI. The umbrella integration here keeps the single domain `mygrid` for a possible core submission.
 
 The overlay runtime files are under `homeassistant/components/mygrid`. Tests belong under `tests/components/mygrid` and import `tests.common`, as core tests do. `conftest.py` at the repository root is a local overlay bootstrap; **do not copy it into core**. It uses the installed test harness and extends the component lookup path, without modifying installed Home Assistant files.
 
@@ -52,13 +52,15 @@ The VoltBridge HACS repository has its own copy. There is no equivalent for the 
 
 ## Preparing the core change
 
-1. Publish the reviewed device-library versions to PyPI and verify a clean installation.
+The device libraries are already published on PyPI. If this dormant overlay is revived:
+
+1. Port the current integration code and tests from the hand-maintained HACS repositories, review the required device-library versions, and verify a clean installation from PyPI. Publish a new library release only if the port requires unreleased changes.
 2. Run `uv run python scripts/apply_to_core.py /path/to/core --dry-run`, review the paths, then run without `--dry-run` to copy the new domain and its tests into a clean target core checkout. Existing domain directories are never overwritten.
 3. In that checkout, run its required tooling, including `python -m script.hassfest --integration-path homeassistant/components/mygrid`, Ruff, strict typing and `pytest tests/components/mygrid`. Adapt to the target branch's current APIs if they differ from the tested minimum.
 4. Submit the draft `documentation/home-assistant.io/source/_integrations/mygrid.markdown` to the documentation repository, updating the proposed release version to the actual merge target.
 5. Resolve the tracked maintainer/brand requirements, record physical-battery acceptance results, and request the normal upstream review. No official quality tier is asserted in the manifest.
 
-The source repositories are published under [tjorim on GitHub](https://github.com/tjorim). No upstream PR or PyPI release has been created. Manufacturer-approved branding and physical-device validation remain pending. The protocol provides no hardware identity, so entry identities survive address reconfiguration but replacement hardware must be configured as a new entry.
+The source repositories are published under [tjorim on GitHub](https://github.com/tjorim). The device-library releases are available on PyPI; no upstream Home Assistant PR has been created. Manufacturer-approved branding and physical-device validation remain pending until supporting evidence is recorded. The protocol provides no hardware identity, so entry identities survive address reconfiguration but replacement hardware must be configured as a new entry.
 
 ## Layout
 
