@@ -22,7 +22,7 @@
     "tmodbus"
   ],
   "requirements": [
-    "mygrid-modbus==0.1.0",
+    "mygrid-modbus==0.1.1",
     "mygrid-voltbridge==0.4.0"
   ],
   "zeroconf": [

@@ -19,7 +19,7 @@ def main() -> None:
     assert manifest["domain"] == "mygrid"
     assert manifest["dependencies"] == ["modbus"]
     assert manifest["requirements"] == [
-        "mygrid-modbus==0.1.0",
+        "mygrid-modbus==0.1.1",
         "mygrid-voltbridge==0.4.0",
     ]
     assert manifest["dhcp"] == [{"registered_devices": True}]
