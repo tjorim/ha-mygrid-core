@@ -19,6 +19,9 @@ from mygrid_modbus import BatteryData
 from .moduletwo_coordinator import ModuleTwoConfigEntry, ModuleTwoCoordinator
 from .moduletwo_entity import ModuleTwoEntity
 
+PARALLEL_UPDATES = 0
+
+
 STATUS = ("normal", "fault", "telemetry_stale")
 
 

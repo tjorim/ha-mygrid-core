@@ -9,6 +9,8 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from .moduletwo_coordinator import ModuleTwoConfigEntry
 from .moduletwo_entity import ModuleTwoEntity
 
+PARALLEL_UPDATES = 1
+
 
 async def async_setup_entry(
     hass: HomeAssistant,

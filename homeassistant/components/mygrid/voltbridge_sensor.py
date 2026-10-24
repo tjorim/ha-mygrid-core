@@ -25,6 +25,9 @@ from mygrid_voltbridge import P1Data, PhaseData, Telegram
 from .voltbridge_coordinator import VoltBridgeConfigEntry, VoltBridgeCoordinator
 from .voltbridge_entity import VoltBridgeEntity
 
+PARALLEL_UPDATES = 0
+
+
 TARIFFS = {1: "day", 2: "night"}
 BREAKER_STATES = {0: "open", 1: "closed", 2: "ready_to_reconnect"}
 # The meter reports 999.9 kW / 999 A when no limiter or fuse supervision is set.

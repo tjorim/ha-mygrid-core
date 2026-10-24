@@ -12,6 +12,8 @@ from mygrid_modbus import FAULTS
 from .moduletwo_coordinator import ModuleTwoConfigEntry, ModuleTwoCoordinator
 from .moduletwo_entity import ModuleTwoEntity
 
+PARALLEL_UPDATES = 0
+
 
 async def async_setup_entry(
     hass: HomeAssistant,

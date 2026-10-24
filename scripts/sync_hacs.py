@@ -103,6 +103,52 @@ PROFILES = {
 }
 OTHER = {"moduletwo": "voltbridge", "voltbridge": "moduletwo"}
 
+# In the umbrella the device modules carry a prefix so that both devices fit one
+# folder. A single-device package does not need it, so the generator drops it and
+# the files take the names a normal integration would use.
+RENAMES = {
+    "moduletwo": {
+        "moduletwo_coordinator": "coordinator",
+        "moduletwo_entity": "entity",
+        "moduletwo_helpers": "connection",
+        "moduletwo_sensor": "sensor",
+        "moduletwo_binary_sensor": "binary_sensor",
+        "moduletwo_number": "number",
+        "moduletwo_button": "button",
+        "moduletwo_diagnostics": "diagnostics",
+        "moduletwo_setup": "__init__",
+        "moduletwo_config_flow": "config_flow",
+    },
+    "voltbridge": {
+        "voltbridge_coordinator": "coordinator",
+        "voltbridge_entity": "entity",
+        "voltbridge_sensor": "sensor",
+        "voltbridge_diagnostics": "diagnostics",
+        "voltbridge_setup": "__init__",
+        "voltbridge_config_flow": "config_flow",
+    },
+}
+TEST_RENAMES = {
+    "moduletwo": {
+        "test_moduletwo_config_flow": "test_config_flow",
+        "test_moduletwo_energy_and_diagnostics": "test_energy_and_diagnostics",
+        "test_moduletwo_integration": "test_integration",
+        "test_moduletwo_simulator": "test_simulator",
+        "moduletwo_simulator": "simulator",
+    },
+    "voltbridge": {
+        "test_voltbridge_config_flow": "test_config_flow",
+        "test_voltbridge_integration": "test_integration",
+        "test_voltbridge_live": "test_live",
+        "voltbridge_support": "support",
+    },
+}
+# Per-device module docstring of the generated __init__.py.
+INIT_DOCSTRINGS = {
+    "moduletwo": "MyGrid ModuleTwo battery over local Modbus TCP.",
+    "voltbridge": "MyGrid VoltBridge P1 meter: local push over UDP with HTTP polling.",
+}
+
 
 def revision(path: Path) -> str:
     """Record provenance without requiring a remote repository."""
@@ -226,13 +272,67 @@ def adapt_python(content: str, profile: Profile, *, vendored_prefix: str) -> str
     return content.replace('DOMAIN = "mygrid"', f'DOMAIN = "{profile.domain}"')
 
 
+def rewrite_imports(content: str, profile: Profile) -> str:
+    """Point imports of renamed device modules at their new names."""
+    for old, new in RENAMES[profile.device].items():
+        content = re.sub(rf"from \.{old} import", f"from .{new} import", content)
+    return content
+
+
+def build_init(content: str, profile: Profile) -> str:
+    """Turn the device setup module into the package ``__init__`` of the package."""
+    device = profile.device
+    content = content.replace(f"async_setup_{device}_entry", "async_setup_entry")
+    content = content.replace(f"async_unload_{device}_entry", "async_unload_entry")
+    content = re.sub(
+        r'^""".*?"""',
+        f'"""{INIT_DOCSTRINGS[device]}"""',
+        content,
+        count=1,
+        flags=re.DOTALL,
+    )
+    imports = "from homeassistant.helpers import config_validation as cv\n"
+    if "from .const import DOMAIN" not in content:
+        imports += "from .const import DOMAIN\n"
+    end = content.index('"""', 3) + 3
+    content = content[:end] + "\n\n" + imports + content[end:]
+    return (
+        content.rstrip("\n")
+        + "\n\n\nCONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)\n"
+    )
+
+
+def build_config_flow(content: str, profile: Profile) -> str:
+    """Append the single-device flow class to the device flow module."""
+    tail = (TEMPLATES / profile.device / "config_flow_tail.py").read_text()
+    head, _, body = tail.partition("\nclass ")
+    imports = [
+        line
+        for line in head.splitlines()
+        if line.startswith(("from ", "import "))
+        and f"{profile.device}_config_flow" not in line
+    ]
+    end = content.index('"""', 3) + 3
+    content = content[:end] + "\n\n" + "\n".join(imports) + content[end:]
+    return content.rstrip("\n") + "\n\n\nclass " + body
+
+
 def component_files(profile: Profile, target: Path, library: Path) -> dict[Path, bytes]:
     """Return the generated integration: shared code, one device's modules, glue, vendor."""
     files: dict[Path, bytes] = {}
     base = Path("custom_components") / profile.domain
     other = OTHER[profile.device]
-    glue = {"__init__.py", "config_flow.py", "sensor.py", "diagnostics.py"}
-    moduletwo_platforms = {"binary_sensor.py", "number.py", "button.py"}
+    # Umbrella-only modules: the dispatchers that route between the two devices.
+    umbrella = {
+        "__init__.py",
+        "config_flow.py",
+        "sensor.py",
+        "diagnostics.py",
+        "binary_sensor.py",
+        "number.py",
+        "button.py",
+    }
+    renames = RENAMES[profile.device]
     existing = target / base / "manifest.json"
     # The integration version is owned by the HACS repository, not generated.
     version = (
@@ -242,22 +342,24 @@ def component_files(profile: Profile, target: Path, library: Path) -> dict[Path,
         name = path.name
         if (
             name.startswith(f"{other}_")
-            or name in glue
+            or name in umbrella
             or name in {"manifest.json", "strings.json", "icons.json"}
-            or (profile.device == "voltbridge" and name in moduletwo_platforms)
             or path.suffix not in (".py", ".json", ".yaml")
         ):
             continue
         content = path.read_text()
-        if path.suffix == ".py":
-            content = adapt_python(content, profile, vendored_prefix=".vendor")
-            files[base / name] = format_python(content, base / name).encode()
-        else:
+        if path.suffix != ".py":
             files[base / name] = content.encode()
-    for name in sorted(glue):
-        content = (TEMPLATES / profile.device / name).read_text()
-        content = adapt_python(content, profile, vendored_prefix=".vendor")
-        files[base / name] = format_python(content, base / name).encode()
+            continue
+        new = renames.get(path.stem, path.stem)
+        content = rewrite_imports(
+            adapt_python(content, profile, vendored_prefix=".vendor"), profile
+        )
+        if new == "__init__":
+            content = build_init(content, profile)
+        elif new == "config_flow":
+            content = build_config_flow(content, profile)
+        files[base / f"{new}.py"] = format_python(content, base / f"{new}.py").encode()
     manifest = json.loads((COMPONENT / "manifest.json").read_text())
     # `categories` is deliberately not written: the released hassfest rejects it
     # (HACS only warns about its absence). Add it once hassfest accepts it.
@@ -347,22 +449,20 @@ async def start_{profile.device}(hass, data=None):
 
 
 def conftest(profile: Profile) -> str:
-    """Return the source of the single-device test conftest."""
-    names = {
-        "moduletwo": "entry, mock_client, registers",
-        "voltbridge": "vb_client, vb_entry, vb_listener, vb_setup_entry",
-    }[profile.device]
-    return f'''"""Re-export this device's fixtures and enable the custom integration."""
-
-import pytest
-
-from .{profile.device}_fixtures import {names}  # noqa: F401
+    """Return the single-device conftest: the device fixtures plus the autouse switch."""
+    fixtures = adapt_test(
+        (TESTS / f"{profile.device}_fixtures.py").read_text(), profile
+    )
+    return (
+        fixtures.rstrip("\n")
+        + '''
 
 
 @pytest.fixture(autouse=True)
 def custom_integrations(enable_custom_integrations):
     """Enable the generated custom integration in the test runtime."""
 '''
+    )
 
 
 def adapt_test(content: str, profile: Profile) -> str:
@@ -370,7 +470,7 @@ def adapt_test(content: str, profile: Profile) -> str:
     content = adapt_python(
         content, profile, vendored_prefix=f"custom_components.{profile.domain}.vendor"
     )
-    return (
+    content = (
         content.replace(
             "homeassistant.components.mygrid", f"custom_components.{profile.domain}"
         )
@@ -382,17 +482,29 @@ def adapt_test(content: str, profile: Profile) -> str:
         .replace('"mygrid"', f'"{profile.domain}"')
         .replace("Error fetching mygrid", f"Error fetching {profile.domain}")
     )
+    return rename_modules(content, profile)
+
+
+def rename_modules(content: str, profile: Profile) -> str:
+    """Follow the dropped prefixes: component modules and the device's test modules."""
+    package = f"custom_components.{profile.domain}"
+    for old, new in RENAMES[profile.device].items():
+        target = package if new == "__init__" else f"{package}.{new}"
+        content = re.sub(rf"{re.escape(package)}\.{old}\b", target, content)
+    for old, new in TEST_RENAMES[profile.device].items():
+        content = re.sub(rf"\b{old}\b", new, content)
+    return content
 
 
 def test_files(profile: Profile) -> dict[Path, bytes]:
     """The device's tests, adapted to the custom-component namespace."""
     files: dict[Path, bytes] = {}
-    other = OTHER[profile.device]
     own = (
         f"test_{profile.device}_",
         f"{profile.device}_",
         "voltbridge_support" if profile.device == "voltbridge" else "\0",
     )
+    renames = TEST_RENAMES[profile.device]
     for path in sorted(TESTS.iterdir()):
         if path.is_dir():
             if path.name == "fixtures" and profile.device == "voltbridge":
@@ -400,17 +512,22 @@ def test_files(profile: Profile) -> dict[Path, bytes]:
                     files[Path("tests/fixtures") / fixture.name] = fixture.read_bytes()
             elif path.name == "live" and profile.device == "voltbridge":
                 for live in sorted(path.glob("*.py")):
-                    files[Path("tests/live") / live.name] = format_python(
-                        adapt_test(live.read_text(), profile),
-                        Path("tests/live") / live.name,
+                    name = f"{renames.get(live.stem, live.stem)}.py"
+                    files[Path("tests/live") / name] = format_python(
+                        adapt_test(live.read_text(), profile), Path("tests/live") / name
                     ).encode()
             continue
-        if path.suffix != ".py" or not path.name.startswith(own):
+        # The fixtures module becomes the conftest below; the umbrella conftest and
+        # flow helper are replaced by single-device versions.
+        if (
+            path.suffix != ".py"
+            or not path.name.startswith(own)
+            or path.stem == f"{profile.device}_fixtures"
+        ):
             continue
-        if path.name.startswith(f"{other}_") or path.name.startswith(f"test_{other}_"):
-            continue
-        files[Path("tests") / path.name] = format_python(
-            adapt_test(path.read_text(), profile), Path("tests") / path.name
+        name = f"{renames.get(path.stem, path.stem)}.py"
+        files[Path("tests") / name] = format_python(
+            adapt_test(path.read_text(), profile), Path("tests") / name
         ).encode()
     files[Path("tests/__init__.py")] = (TESTS / "__init__.py").read_bytes()
     files[Path("tests/conftest.py")] = format_python(

@@ -1,4 +1,4 @@
-"""UI setup for the MyGrid ModuleTwo battery."""
+"""Single-device tail of the generated config flow: appended to the device flow module."""
 
 from typing import Any
 
