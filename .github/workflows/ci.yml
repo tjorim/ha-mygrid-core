@@ -22,14 +22,14 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: tjorim/python-mygrid-modbus
-          ref: 3316c0aa820b5ad71aff79600df3dcae2a452b9d
+          ref: db3224abc22c6fc86a10247d42c28d62f3dafd0a
           path: python-mygrid-modbus
           fetch-depth: 0
           persist-credentials: false
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: tjorim/python-mygrid-voltbridge
-          ref: f8dfc349c159da4eb0fe1d25005c7bbaef0d0a11
+          ref: 19455f503cdf8d51ad98f84bf62749f2e49fca65
           path: python-mygrid-voltbridge
           fetch-depth: 0
           persist-credentials: false

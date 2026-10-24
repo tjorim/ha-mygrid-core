@@ -3,7 +3,7 @@ name = "ha-mygrid-core"
 version = "0.1.0"
 description = "MyGrid integration (ModuleTwo battery, VoltBridge P1 meter) for Home Assistant core"
 requires-python = ">=3.14.2"
-license = "MIT"
+license = "Apache-2.0"
 # Unpinned here: the sibling checkouts below are versioned by git tags (hatch-vcs).
 # The release pins live in the HA manifest, which installs from PyPI.
 dependencies = ["mygrid-modbus", "mygrid-voltbridge"]
