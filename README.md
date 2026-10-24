@@ -1,5 +1,12 @@
 # MyGrid core contribution overlay
 
+## Documentation
+
+See the [MyGrid documentation hub](https://github.com/tjorim/custom-mygrid#readme)
+for device setup guides, protocol references and repository links.
+
+> **Dormant.** For now the work happens in the libraries (`python-mygrid-modbus`, `python-mygrid-voltbridge`) and the hand-maintained HACS integrations (`ha-mygrid-modbus`, `ha-mygrid-voltbridge`). This overlay is no longer the source of the HACS packages, and `scripts/sync_hacs.py` must not be run against them any more. It is kept for a possible Home Assistant core contribution, which would be ported from the HACS integrations once the ModuleTwo is validated on hardware.
+
 This repository contains the MyGrid integration and tests arranged for a Home Assistant core contribution. **One integration (`mygrid`) covers both MyGrid devices**, the way HomeWizard covers its device family: a ModuleTwo battery (Modbus TCP) and a VoltBridge P1 meter (HTTP and UDP push). Each config entry is one device; the user chooses the device in the first config-flow step, and a VoltBridge is also found by mDNS and followed by DHCP. It follows the [Modernizing Modbus recommendations](https://contributors.home-assistant.io/blog/2026/07/05/modernizing-modbus/) and the [Modbus integration guide](https://developers.home-assistant.io/docs/modbus/introduction).
 
 It is an **overlay**, not a full Home Assistant fork or an accepted upstream integration. Local validation targets Home Assistant 2026.10.2. The complete upstream checks must also run in the target core checkout before submission.
@@ -10,13 +17,13 @@ It is an **overlay**, not a full Home Assistant fork or an accepted upstream int
 | --- | --- |
 | `python-mygrid-modbus` | Independent PyPI package `mygrid-modbus`: device library for the ModuleTwo using `Device`, `Component`, typed fields and the supplied mock backend |
 | `python-mygrid-voltbridge` | Independent PyPI package `mygrid-voltbridge`, the client library for the VoltBridge: HTTP API, raw DSMR telegram, UDP broadcast decoder |
-| `ha-mygrid-core` | This canonical integration, its core-layout tests and draft user documentation |
-| `ha-mygrid-modbus` | Generated HACS package for the ModuleTwo (domain `mygrid_modbus`) with the vendored library |
-| `ha-mygrid-voltbridge` | Generated HACS package for the VoltBridge (domain `mygrid_voltbridge`) with the vendored library |
+| `ha-mygrid-core` | Dormant core overlay, its core-layout tests and draft user documentation |
+| `ha-mygrid-modbus` | HACS integration for the ModuleTwo (domain `mygrid_modbus`), hand-maintained, depending on the PyPI library |
+| `ha-mygrid-voltbridge` | HACS integration for the VoltBridge (domain `mygrid_voltbridge`), hand-maintained, depending on the PyPI library |
 
 HACS allows one integration (one domain) per repository, so each device has its own HACS repository instead of one umbrella package; community testing does not require PyPI publication. The umbrella integration here keeps the single domain `mygrid` that a core submission needs.
 
-The canonical runtime files are under `homeassistant/components/mygrid`. Tests belong under `tests/components/mygrid` and import `tests.common`, as core tests do. `conftest.py` at the repository root is a local overlay bootstrap; **do not copy it into core**. It uses the installed test harness and extends the component lookup path, without modifying installed Home Assistant files.
+The overlay runtime files are under `homeassistant/components/mygrid`. Tests belong under `tests/components/mygrid` and import `tests.common`, as core tests do. `conftest.py` at the repository root is a local overlay bootstrap; **do not copy it into core**. It uses the installed test harness and extends the component lookup path, without modifying installed Home Assistant files.
 
 ## Local checks
 
@@ -41,7 +48,7 @@ The library is installed as a package, not imported through a source-path shortc
 VOLTBRIDGE_HOST=192.168.0.45 uv run pytest -m live --no-cov
 ```
 
-The generator copies it into the VoltBridge HACS package. There is no equivalent for the ModuleTwo yet, because no ModuleTwo has answered on Modbus.
+The VoltBridge HACS repository has its own copy. There is no equivalent for the ModuleTwo yet, because no ModuleTwo has answered on Modbus.
 
 ## Preparing the core change
 
@@ -55,7 +62,7 @@ The source repositories are published under [tjorim on GitHub](https://github.co
 
 ## Layout
 
-Flat modules with a device prefix, so both devices fit one folder (the HACS generator drops the prefix again, see below): `moduletwo_*.py` and `voltbridge_*.py` hold each device family's coordinator, entity base and platforms; `sensor.py`, `binary_sensor.py`, `number.py`, `button.py` and `diagnostics.py` are thin dispatchers (Home Assistant loads platforms by those names); `__init__.py` and `config_flow.py` route by the entry's `device` field. Entries created before the field existed are ModuleTwo entries. Home Assistant allows one `iot_class` per manifest; `local_polling` is declared because the battery is polled and the VoltBridge's snapshot is polled alongside its UDP push.
+Flat modules with a device prefix, so both devices fit one folder: `moduletwo_*.py` and `voltbridge_*.py` hold each device family's coordinator, entity base and platforms; `sensor.py`, `binary_sensor.py`, `number.py`, `button.py` and `diagnostics.py` are thin dispatchers (Home Assistant loads platforms by those names); `__init__.py` and `config_flow.py` route by the entry's `device` field. Entries created before the field existed are ModuleTwo entries. Home Assistant allows one `iot_class` per manifest; `local_polling` is declared because the battery is polled and the VoltBridge's snapshot is polled alongside its UDP push.
 
 ## Architecture
 
@@ -63,15 +70,6 @@ Home Assistant's `modbus` integration owns the shared link. The config flow borr
 
 The VoltBridge coordinator has no update interval: UDP telegrams (about 1 Hz) are merged into a polled HTTP snapshot and telegram, so a busy push stream cannot starve the poll. The VoltBridge entities are read-only. No setup, reconnect, polling, unload or restore operation writes power. Commands remain explicit, fresh-limit checked and confirmed by readback. The library and both supported backends never replay uncertain writes. All tests involving actual sockets use a local simulator. See the HACS repository's hardware checklist for device acceptance.
 
-## Keeping HACS synchronized
+## Relation to the HACS integrations
 
-Edit device code in `python-mygrid-modbus` or `python-mygrid-voltbridge`, integration code/tests here, then regenerate both HACS packages from this repository:
-
-```sh
-uv run python scripts/sync_hacs.py            # writes ../ha-mygrid-modbus and ../ha-mygrid-voltbridge
-uv run python scripts/sync_hacs.py --check    # fails if either has drifted
-```
-
-and run `scripts/validate_metadata.py` and the usual checks inside each HACS repository. The generator (`scripts/sync_hacs.py`) copies one device's `moduletwo_*` or `voltbridge_*` modules, the shared code and its tests, and drops the device prefix so the package reads like a normal single integration (`moduletwo_coordinator.py` becomes `coordinator.py`, `moduletwo_setup.py` becomes `__init__.py`, `moduletwo_config_flow.py` gets the single-device flow class from `scripts/hacs_templates` appended, and so on). The umbrella dispatchers are left out, the test conftest and flow helper are replaced by single-device versions, the generator renames the domain, filters strings and icons to the device, sets the manifest per device (`iot_class`, dependencies, discovery), vendors the device's library byte for byte, and records source commits and SHA-256 hashes. The version of each HACS integration is owned by its own repository. Do not maintain hand-edited forks in the generated areas.
-
-Because the domains differ, HACS entries do not migrate to the core integration later: add the device again in the umbrella. The earlier standalone prototype of the VoltBridge integration used the same domain as `ha-mygrid-voltbridge` now has, so its entries keep working.
+The HACS integrations `ha-mygrid-modbus` and `ha-mygrid-voltbridge` are hand-maintained and independent of this repository; they used to be generated from it. If this overlay is ever revived for a core submission, port the integration code and tests from them. Because the domains differ, HACS entries do not migrate to the core integration later: add the device again in the umbrella.

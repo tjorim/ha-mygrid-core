@@ -82,7 +82,6 @@ ignore = [
 "conftest.py" = ["D", "INP001"]
 # Home Assistant fixes the signatures of platform setup, flow steps and options.
 "homeassistant/**" = ["ARG"]
-"scripts/hacs_templates/**" = ["ARG", "INP001"]
 
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
