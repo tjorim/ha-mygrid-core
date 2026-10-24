@@ -6,7 +6,7 @@ from homeassistant.core import HomeAssistant
 from .helpers import async_reload_entry
 from .voltbridge_coordinator import VoltBridgeConfigEntry, VoltBridgeCoordinator
 
-VOLTBRIDGE_PLATFORMS = [Platform.SENSOR]
+VOLTBRIDGE_PLATFORMS = [Platform.SENSOR, Platform.BUTTON]
 
 
 async def async_setup_voltbridge_entry(

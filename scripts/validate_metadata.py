@@ -20,7 +20,7 @@ def main() -> None:
     assert manifest["dependencies"] == ["modbus"]
     assert manifest["requirements"] == [
         "mygrid-modbus==0.1.0",
-        "mygrid-voltbridge==0.3.0",
+        "mygrid-voltbridge==0.4.0",
     ]
     assert manifest["dhcp"] == [{"registered_devices": True}]
     assert manifest["zeroconf"] == [

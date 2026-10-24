@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: tjorim/python-mygrid-voltbridge
-          ref: d03ba5115ef7a5de79a7a8427b3ad906923bb198
+          ref: f8dfc349c159da4eb0fe1d25005c7bbaef0d0a11
           path: python-mygrid-voltbridge
           fetch-depth: 0
           persist-credentials: false

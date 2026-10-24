@@ -77,7 +77,7 @@ Connect the P1 cable and let the VoltBridge receive at least one telegram before
 
 ### Provided entities
 
-Net, import and export power; energy imported and exported (day and night, suitable for the Energy dashboard); voltage and current per phase; the current quarter-hour average demand, the monthly peak demand and its time (the monthly peak history is an attribute); the tariff; gas and water volumes if those meters are connected to the meter's M-Bus; and a diagnostic breaker state. Per-phase power and the limiter/fuse thresholds are disabled by default, and the thresholds are only created when the meter has real limits.
+Net, import and export power; energy imported and exported (day and night, suitable for the Energy dashboard); voltage and current per phase; the current quarter-hour average demand, the monthly peak demand and its time (the monthly peak history is an attribute); the tariff; gas and water volumes if those meters are connected to the meter's M-Bus; a diagnostic breaker state, and two diagnostics about the device itself: the Wi-Fi signal strength and the share of P1 telegrams that failed their checksum. An opt-in **Reboot** button restarts the VoltBridge; it is disabled by default and a reboot is never retried. Per-phase power and the limiter/fuse thresholds are disabled by default, and the thresholds are only created when the meter has real limits.
 
 Export values and phases L2 and L3 are decoded from the device's documented layout but have not been verified against hardware with solar production or a three-phase meter.
 

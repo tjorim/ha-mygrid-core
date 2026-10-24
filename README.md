@@ -31,7 +31,7 @@ uv run pytest
 uv run python scripts/validate_metadata.py
 ```
 
-The library is installed as a package, not imported through a source-path shortcut. Its own tests run independently. Only the development uv source overrides reference the sibling checkouts; the production manifest requires `mygrid-modbus==0.1.0` and `mygrid-voltbridge==0.3.0` from PyPI.
+The library is installed as a package, not imported through a source-path shortcut. Its own tests run independently. Only the development uv source overrides reference the sibling checkouts; the production manifest requires `mygrid-modbus==0.1.0` and `mygrid-voltbridge==0.4.0` from PyPI.
 
 ## Live check against a real VoltBridge
 

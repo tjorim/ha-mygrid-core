@@ -66,7 +66,7 @@ async def test_both_devices_run_side_by_side(
         },
     }
     assert by_entry[entry.entry_id] == {"sensor", "binary_sensor", "number", "button"}
-    assert by_entry[vb_entry.entry_id] == {"sensor"}
+    assert by_entry[vb_entry.entry_id] == {"sensor", "button"}
 
     assert await hass.config_entries.async_unload(vb_entry.entry_id)
     assert entry.state is ConfigEntryState.LOADED

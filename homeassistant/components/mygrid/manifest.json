@@ -23,7 +23,7 @@
   ],
   "requirements": [
     "mygrid-modbus==0.1.0",
-    "mygrid-voltbridge==0.3.0"
+    "mygrid-voltbridge==0.4.0"
   ],
   "zeroconf": [
     {

@@ -123,6 +123,7 @@ RENAMES = {
         "voltbridge_coordinator": "coordinator",
         "voltbridge_entity": "entity",
         "voltbridge_sensor": "sensor",
+        "voltbridge_button": "button",
         "voltbridge_diagnostics": "diagnostics",
         "voltbridge_setup": "__init__",
         "voltbridge_config_flow": "config_flow",
@@ -208,7 +209,7 @@ def voltbridge_entity_keys() -> set[str]:
     as the first argument of a helper (``_power("net_power", ...)``).
     """
     patterns = (
-        r'translation_key="([a-z0-9_]+)"',
+        r'translation_key\s*=\s*"([a-z0-9_]+)"',
         r'\b_(?:power|energy)\(\s*"([a-z0-9_]+)"',
         r'\bkey="([a-z0-9_]+)"',
     )
