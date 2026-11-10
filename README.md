@@ -1,9 +1,19 @@
 # MyGrid core contribution overlay
 
-## Documentation
+## Documentation and maintenance status
 
-See the [MyGrid documentation hub](https://github.com/tjorim/custom-mygrid#readme)
-for device setup guides, protocol references and repository links.
+**Historical overlay, not an installation target.** Use the maintained
+[ModuleTwo integration](https://github.com/tjorim/ha-mygrid-modbus) or
+[VoltBridge integration](https://github.com/tjorim/ha-mygrid-voltbridge).
+The [documentation website](https://tjorim.github.io/custom-mygrid/) provides the
+current setup guides, examples and library references.
+
+This repository's draft user documentation and development instructions describe
+the dormant core proposal. They are not authoritative for the HACS integrations
+and are not kept synchronized with them. Maintain HA guides in the integration
+repositories and protocol/Python references in the library repositories. If this
+overlay is revived, port and review the current maintained sources rather than
+using these drafts as current installation guidance.
 
 > **Dormant.** For now the work happens in the libraries (`python-mygrid-modbus`, `python-mygrid-voltbridge`) and the hand-maintained HACS integrations (`ha-mygrid-modbus`, `ha-mygrid-voltbridge`). This overlay is no longer the source of the HACS packages, and `scripts/sync_hacs.py` must not be run against them any more. It is kept for a possible Home Assistant core contribution, which would be ported from the HACS integrations once the ModuleTwo is validated on hardware.
 
@@ -48,7 +58,7 @@ The library is installed as a package, not imported through a source-path shortc
 VOLTBRIDGE_HOST=192.168.0.45 uv run pytest -m live --no-cov
 ```
 
-The VoltBridge HACS repository has its own copy. There is no equivalent for the ModuleTwo yet, because no ModuleTwo has answered on Modbus.
+The VoltBridge HACS repository has its own copy. This overlay has no equivalent ModuleTwo live check. Current ModuleTwo library validation and partial HACS acceptance are recorded in the maintained repositories; this historical overlay does not establish their status.
 
 ## Preparing the core change
 
@@ -60,7 +70,7 @@ The device libraries are already published on PyPI. If this dormant overlay is r
 4. Submit the draft `documentation/home-assistant.io/source/_integrations/mygrid.markdown` to the documentation repository, updating the proposed release version to the actual merge target.
 5. Resolve the tracked maintainer/brand requirements, record physical-battery acceptance results, and request the normal upstream review. No official quality tier is asserted in the manifest.
 
-The source repositories are published under [tjorim on GitHub](https://github.com/tjorim). The device-library releases are available on PyPI; no upstream Home Assistant PR has been created. Manufacturer-approved branding and physical-device validation remain pending until supporting evidence is recorded. The protocol provides no hardware identity, so entry identities survive address reconfiguration but replacement hardware must be configured as a new entry.
+The source repositories are published under [tjorim on GitHub](https://github.com/tjorim). The device-library releases are available on PyPI; no upstream Home Assistant PR has been created. This dormant proposal makes no claim of manufacturer-approved branding or completed physical acceptance; consult the maintained repositories for current evidence. The protocol provides no hardware identity, so entry identities survive address reconfiguration but replacement hardware must be configured as a new entry.
 
 ## Layout
 
