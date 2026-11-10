@@ -20,6 +20,13 @@ ha_platforms:
   - sensor
 ---
 
+> **Dormant proposal:** This draft is historical and is not the setup guide for
+> the maintained custom integrations. Use the
+> [MyGrid documentation website](https://tjorim.github.io/custom-mygrid/) for
+> current ModuleTwo and VoltBridge setup. If this core proposal is revived,
+> review the current integration and library documentation before updating it.
+
+
 The **MyGrid** integration works with two MyGrid devices on your local network. No cloud account is used.
 
 | Device | What it provides | Connection |
